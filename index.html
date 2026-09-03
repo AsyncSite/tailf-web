@@ -1,13 +1,76 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tailf</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tailf</title>
+<meta name="description" content="새 개발 공고를 대신 봐드립니다. 조건에 맞는 것만 알려드리고, 맞는 게 없는 날은 아무것도 보내지 않습니다.">
+<meta property="og:title" content="tailf">
+<meta property="og:description" content="새 개발 공고를 대신 봐드립니다. 맞는 것만 알려드립니다.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <h1>tailf</h1>
-    <p>tailf는 개발자 공고 감시원입니다. 조건을 한 번 맡기면 저희가 대신 보고, 맞는 것만 알립니다. 안 열리는 날이 정상이고, 성공은 맞는 공고를 닫히기 전에 본 것입니다.</p>
-    <p><a href="#">App Store에서 다운로드</a></p>
+<div class="wrap">
+  <header><div class="mark">tail<span>&nbsp;-f</span></div></header>
+
+  <h1>새 공고 확인하는 일,<br>이제 그만하셔도 됩니다.</h1>
+
+  <p class="lede">
+    퇴근하고 채용 페이지를 하나씩 눌러보다가, 좋은 자리를 이미 닫힌 뒤에 발견한 적 있으시죠.
+    <b>tailf 가 대신 봅니다.</b> 쓰시는 기술과 갈 수 있는 조건을 한 번만 알려주시면,
+    새로 올라오는 개발 공고 중에서 맞는 것만 골라 알려드립니다.
+  </p>
+
+  <div class="live">
+    <div class="n" id="n">지금 지켜보는 개발 공고</div>
+    <p id="nsub">잠시만요, 세는 중이에요.</p>
+  </div>
+
+  <section>
+    <h2>이렇게 씁니다</h2>
+    <div class="rows">
+      <div class="row">
+        <b>한 번만 알려주시면 됩니다</b>
+        <p>쓰시는 기술, 갈 수 있는 근무지, 지금 다니는 회사. 세 가지면 충분합니다. 로그인은 없고 이 정보는 폰 안에만 저장됩니다.</p>
+      </div>
+      <div class="row">
+        <b>맞는 것만 알려드립니다</b>
+        <p>기술이 두 가지 이상 겹치고, 갈 수 있는 자리이고, 지금 회사가 아닐 때만 알림이 갑니다. 잠금화면에는 회사 이름이 보이지 않게 해 두었습니다.</p>
+      </div>
+      <div class="row">
+        <b>닫히기 전에 알려드립니다</b>
+        <p>담아두신 공고가 내려가면 그날 알려드립니다. 저희는 회사 채용 페이지를 직접 보고 있어서 마감을 먼저 봅니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="quiet">
+    <b>조용한 날이 대부분입니다</b>
+    <p>새 개발 공고는 하루에 몇 건뿐이고, 그중 조건에 맞는 것은 더 적습니다.
+       알림이 오지 않는 날은 저희가 보고 걸러낸 날입니다. 앱을 열어보시면 그동안 몇 건을 봤고 몇 건을 걸렀는지 그대로 적혀 있습니다.</p>
+  </div>
+
+  <p class="status">지금은 <b>비공개 테스트 중</b>입니다. 앱스토어에 올라가면 이 자리에 링크가 생깁니다.</p>
+
+  <footer>
+    <a href="/privacy/">개인정보 처리방침</a><span class="sep">·</span><a href="/support/">문의</a>
+    <span class="co">AsyncSite</span>
+  </footer>
+</div>
+<script>
+fetch('https://api.asyncsite.com/api/public/jobs?jobFamily=ENGINEERING&page=0&size=1')
+  .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+  .then(function (d) {
+    var n = d && d.totalElements;
+    if (typeof n !== 'number') throw 0;
+    document.getElementById('n').innerHTML = n.toLocaleString('ko-KR') + '<small>건을 지켜보고 있어요</small>';
+    document.getElementById('nsub').textContent = '조건을 알려주시면 이 중에서 맞는 것만 보내드립니다.';
+  })
+  .catch(function () {
+    document.getElementById('n').textContent = '지금 지켜보는 개발 공고';
+    document.getElementById('nsub').textContent = '지금은 수를 불러오지 못했어요. 앱에서는 열 때마다 다시 셉니다.';
+  });
+</script>
 </body>
 </html>
