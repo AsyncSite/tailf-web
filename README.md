@@ -31,6 +31,11 @@ rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설
 세션당 한 번 불러옵니다. Cloudflare Web Analytics에는 이 고정 경로만 남으며, 고른 기술과
 조건은 보내지 않습니다. 시작률은 시작/방문, 완료율은 완료/시작으로 읽습니다.
 
+`_headers`의 `Referrer-Policy: no-referrer`가 모든 페이지와 숨은 신호 문서에
+적용됩니다. 유입 주소에 임의 쿼리가 붙어도 API, 신호, RUM 요청의
+Referer로 전달되지 않게 하는 경계입니다. Cloudflare는 CDN과 보안과 웹 성능
+집계를 맡으며, 봇 검사 상태용 `cf_clearance` 쿠키를 설정할 수 있습니다.
+
 ```graphql
 query{viewer{accounts(filter:{accountTag:"<ACCOUNT_TAG>"}){rumPageloadEventsAdaptiveGroups(limit:100,filter:{datetime_geq:"<ISO8601>",requestHost:"tailf.asyncsite.com"},dimensions:[requestPath]){count dimensions{requestPath}}}}}
 ```

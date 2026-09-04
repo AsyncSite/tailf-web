@@ -66,8 +66,9 @@
 
   /* Web Analytics already measures page loads on this host. Loading one of
      these fixed, noindex documents lets it count the two useful backtest
-     actions without sending a stack, profile, cookie, or free-form value.
-     sessionStorage prevents repeat taps from inflating one browser session. */
+     actions without adding a stack, profile, identifier, or free-form value
+     to the request. sessionStorage prevents repeat taps from inflating one
+     browser session. */
   var SIGNALS = {
     'backtest-started': 1,
     'backtest-completed': 1
@@ -325,8 +326,6 @@
       return;
     }
 
-    emitSignal('backtest-completed');
-
     line(bigEl, '내 기술과 겹치는 채용 공고 ' + countAtLeast(active, m, 2) + '개');
 
     var observed = window30.length;
@@ -334,6 +333,7 @@
       line(secondEl, '지난 30일에 올라온 게 ' + observed + '건뿐이라 아직 말하기 어려워요.');
       line(basisEl, '');
       line(scopeEl, '기술만으로 센 값이에요. 경력이랑 지역은 앱에서 좁혀요.');
+      emitSignal('backtest-completed');
       return;
     }
     var matched = countAtLeast(window30, m, 2);
@@ -345,6 +345,7 @@
       ? '겹친 공고 ' + matched + '건이 ' + ringDays + '일에 걸쳐 올라왔어요. 하루 한 번 묶어서 와요.'
       : '지난 30일에 올라온 ' + observed + '건을 봤어요.');
     line(scopeEl, '지난 30일 기준이고 이미 내려간 것도 셌어요. 기술만으로 센 값이에요. 경력이랑 지역은 앱에서 좁혀요.');
+    emitSignal('backtest-completed');
   }
 
   function hideSection() {
