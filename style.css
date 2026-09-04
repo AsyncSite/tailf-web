@@ -66,6 +66,15 @@ h1 {
 }
 .btn:hover { background: #4FBB02; }
 .cta-note { margin-top: 12px; font-size: 14px; color: var(--ink-3); }
+
+/* The install button before Apple has the app. It is not a link and must not
+   look like one: nothing here is pressable until the released state draws. */
+.btn.install-pending {
+  background: var(--chip); color: var(--ink-2); cursor: default;
+}
+.btn.install-pending:hover { background: var(--chip); }
+.topcta.install-pending { color: var(--ink-2); cursor: default; white-space: nowrap; }
+.topcta.install-pending:hover { background: var(--chip); }
 .cta-note a { color: var(--acc-ink); }
 
 .phone {

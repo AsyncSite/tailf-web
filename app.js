@@ -16,8 +16,89 @@
  * A number this file cannot count is not drawn. If the list does not arrive,
  * the whole section leaves rather than showing a number we did not count.
  */
+/* The install button, everywhere on the page, is one state component.
+ *
+ * There are two states and the page ships in the honest one. Until Apple has
+ * the app, no button on this page is a link: a dead 「받기」 that goes nowhere
+ * is worse than a button that says what is actually happening. The released
+ * state is drawn only when Apple itself answers with the app, and the address
+ * is the one Apple gives, never one we assemble.
+ */
 (function () {
   'use strict';
+
+  var LOOKUP = 'https://itunes.apple.com/lookup?id=6808048845&country=kr';
+  var CACHE_KEY = 'tailf.appstore.v1';
+  var CACHE_MS = 10 * 60 * 1000;
+  /* Only an address Apple serves. A payload that carried anything else would
+     be a link we made up, and this page does not make up links. */
+  var APPLE_URL = /^https:\/\/(apps|itunes)\.apple\.com\//;
+
+  function each(sel, fn) {
+    var all = document.querySelectorAll(sel);
+    for (var i = 0; i < all.length; i++) fn(all[i]);
+  }
+
+  /** [url] is the App Store address, or null while there is nothing to link. */
+  function drawInstall(url) {
+    var live = !!url;
+    each('[data-install]', function (el) {
+      if (live) {
+        el.href = url;
+        el.target = '_blank';
+        el.rel = 'noopener';
+        el.removeAttribute('aria-disabled');
+        el.textContent = 'App Store 에서 받기';
+        el.classList.remove('install-pending');
+      } else {
+        el.removeAttribute('href');
+        el.removeAttribute('target');
+        el.removeAttribute('rel');
+        // An <a> with no href is already not a link. This says so out loud,
+        // for a reader who meets the button through a screen reader.
+        el.setAttribute('aria-disabled', 'true');
+        el.textContent = 'App Store 심사 중이에요';
+        el.classList.add('install-pending');
+      }
+    });
+    each('[data-install-when="pending"]', function (el) { el.hidden = live; });
+    each('[data-install-when="live"]', function (el) { el.hidden = !live; });
+  }
+
+  function cached() {
+    try {
+      var raw = window.sessionStorage.getItem(CACHE_KEY);
+      if (!raw) return undefined;
+      var v = JSON.parse(raw);
+      if (!v || (Date.now() - v.at) > CACHE_MS) return undefined;
+      return v.url || null;   // null is a real answer: Apple has no app yet
+    } catch (e) { return undefined; }
+  }
+
+  function remember(url) {
+    try {
+      window.sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), url: url }));
+    } catch (e) { /* a browser that keeps nothing still draws the right button */ }
+  }
+
+  function askApple() {
+    var hit = cached();
+    if (hit !== undefined) { drawInstall(hit); return; }
+    fetch(LOOKUP)
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (d) {
+        var rows = (d && d.results) || [];
+        var url = (d && d.resultCount > 0 && rows[0] && rows[0].trackViewUrl) || '';
+        var ok = APPLE_URL.test(url) ? url : null;
+        remember(ok);   // a lookup that answered is worth keeping, either way
+        drawInstall(ok);
+      })
+      // A lookup we could not make is not a release. The page stays as it
+      // shipped and nothing is cached, so the next open asks again.
+      .catch(function () { drawInstall(null); });
+  }
+
+  askApple();
 
   var API = 'https://api.asyncsite.com/api/public/jobs';
   var PAGE_SIZE = 100;   // the API caps page size at 100 (jobs_api.dart)

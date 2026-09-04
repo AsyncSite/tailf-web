@@ -32,7 +32,7 @@
 <header class="topbar">
   <div class="page">
     <a class="mark" href="/">tail<span>&nbsp;-f</span></a>
-    <a class="topcta" href="https://testflight.apple.com/join/5J2W3M5p" target="_blank" rel="noopener">TestFlight 로 받기</a>
+    <a class="topcta install-pending" data-install aria-disabled="true">App Store 심사 중이에요</a>
   </div>
 </header>
 
@@ -47,9 +47,9 @@
         <p class="lede">받자마자 지난 30일이었다면 몇 번 왔을지 바로 알려드려요.</p>
         <p class="lede"><b>넣어둔 건 그 폰 안에만 있어요.</b> 로그인도 없고요.</p>
         <p class="cta-row">
-          <a class="btn" href="https://testflight.apple.com/join/5J2W3M5p" target="_blank" rel="noopener">TestFlight 로 먼저 써보기</a>
+          <a class="btn install-pending" data-install aria-disabled="true">App Store 심사 중이에요</a>
         </p>
-        <p class="cta-note">App Store 는 심사 뒤에 열려요.</p>
+        <p class="cta-note" data-install-when="pending">App Store 에 올라가면 여기서 바로 받을 수 있어요.</p>
       </div>
       <div class="hero-shot">
         <div class="phone">
@@ -85,8 +85,9 @@
     <div class="try-groups" id="try-groups"></div>
 
     <p class="cta-row">
-      <a class="btn" href="https://testflight.apple.com/join/5J2W3M5p" target="_blank" rel="noopener">이 기술로 잠금화면에서 받기</a>
+      <a class="btn install-pending" data-install aria-disabled="true">App Store 심사 중이에요</a>
     </p>
+    <p class="cta-note" data-install-when="pending">App Store 에 올라가면 여기서 바로 받을 수 있어요.</p>
     <p class="cta-note">여기서 고른 건 이 브라우저 안에만 있어요. 세는 것도 여기서 하고요. 저희 쪽으로 안 가요.</p>
   </section>
 
@@ -250,10 +251,11 @@
 
   <!-- 8. 마지막 CTA -->
   <section class="page block last">
-    <h2>tailf 1기를 모으고 있어요</h2>
-    <p class="block-sub">지금은 비공개로 테스트 중이에요. 링크로 들어오면 심사가 끝나는 대로 받을 수 있어요.</p>
+    <h2>받는 곳은 App Store 한 곳이에요</h2>
+    <p class="block-sub" data-install-when="pending">App Store 에 올라가면 이 버튼을 누를 수 있어요. 그때까지 위에서 고른 기술로 몇 번 알림이 왔을지 먼저 세어 볼 수 있어요.</p>
+    <p class="block-sub" data-install-when="live" hidden>받기 전에 위에서 고른 기술로 몇 번 알림이 왔을지 먼저 세어 볼 수 있어요.</p>
     <p class="cta-row">
-      <a class="btn" href="https://testflight.apple.com/join/5J2W3M5p" target="_blank" rel="noopener">tailf 1기로 먼저 써보기</a>
+      <a class="btn install-pending" data-install aria-disabled="true">App Store 심사 중이에요</a>
     </p>
     <p class="cta-note">쓰다가 이상한 데를 찾으시면 <a href="mailto:asyncsite@gmail.com">asyncsite@gmail.com</a> 으로 메일 주세요.</p>
   </section>
