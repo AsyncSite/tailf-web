@@ -4,3 +4,6 @@
 
 /signal/*
   X-Robots-Tag: noindex, nofollow
+
+/go/*
+  X-Robots-Tag: noindex, nofollow
