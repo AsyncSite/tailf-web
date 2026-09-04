@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Google Play · tailf</title>
+<meta name="robots" content="noindex">
+<!-- 스크립트를 끈 브라우저를 위한 줄이에요. app.js 의 PLAY_URL 을 채울 때 아래 한 줄의
+     주석을 풀고 같은 주소를 적으세요. 스크립트가 켜진 브라우저는 이 줄 없이도
+     PLAY_URL 하나로 바로 갑니다.
+<meta http-equiv="refresh" content="0; url=https://play.google.com/store/apps/details?id=...">
+-->
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header><a class="mark" href="/">tail<span>&nbsp;-f</span></a></header>
+  <main class="go">
+    <h1>Google Play 에도 올라가요</h1>
+    <p>아이폰이 먼저예요. 올라가면 이 주소가 바로 스토어로 이어져요.</p>
+    <p class="go-back"><a href="/">← tailf 첫 화면으로</a></p>
+  </main>
+</div>
+<script src="/app.js"></script>
+<script>
+/* PLAY_URL 이 채워지면 이 화면은 읽히기 전에 스토어로 바뀝니다. 주소는 app.js
+   한 곳에만 있고, 여기서는 그 값을 그대로 읽습니다. */
+(function () {
+  var url = window.TAILF && window.TAILF.PLAY_URL;
+  if (url) window.location.replace(url);
+})();
+</script>
+</body>
+</html>

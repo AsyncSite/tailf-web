@@ -16,53 +16,60 @@
  * A number this file cannot count is not drawn. If the list does not arrive,
  * the whole section leaves rather than showing a number we did not count.
  */
-/* The install button, everywhere on the page, is one state component.
+/* The store buttons, everywhere on the page, are one state component.
  *
- * There are two states and the page ships in the honest one. Until Apple has
- * the app, no button on this page is a link: a dead 「받기」 that goes nowhere
- * is worse than a button that says what is actually happening. The released
- * state is drawn only when Apple itself answers with the app, and the address
- * is the one Apple gives, never one we assemble.
+ * Each store has two states and the page ships in the honest one. A button is
+ * a link in both of them: its href never moves, it always points at /go/<store>/,
+ * and that page either forwards to the store or says what is actually happening.
+ * That is the whole reason a state that has no store link is still pressable.
+ * The released label is drawn only when the store itself answers with the app,
+ * and the address is the one the store gives, never one we assemble.
  */
 (function () {
   'use strict';
 
+  /* Google Play. One line, one place: put the address Google serves here and
+     every Play button on the site, the top pill included, leads to it. An empty
+     string is the honest state while Play has nothing of ours. */
+  var PLAY_URL = '';
+
   var LOOKUP = 'https://itunes.apple.com/lookup?id=6808048845&country=kr';
   var CACHE_KEY = 'tailf.appstore.v1';
   var CACHE_MS = 10 * 60 * 1000;
-  /* Only an address Apple serves. A payload that carried anything else would
-     be a link we made up, and this page does not make up links. */
+  /* Only an address the store itself serves. A payload that carried anything
+     else would be a link we made up, and this page does not make up links. */
   var APPLE_URL = /^https:\/\/(apps|itunes)\.apple\.com\//;
+  var PLAY_STORE = /^https:\/\/play\.google\.com\/store\/apps\//;
+
+  var LABELS = {
+    appstore: { live: 'App Store 에서 받기', pending: 'App Store 심사 중이에요' },
+    play: { live: 'Google Play 에서 받기', pending: 'Google Play 에도 올라가요' }
+  };
 
   function each(sel, fn) {
     var all = document.querySelectorAll(sel);
     for (var i = 0; i < all.length; i++) fn(all[i]);
   }
 
-  /** [url] is the App Store address, or null while there is nothing to link. */
-  function drawInstall(url) {
+  /** The Play address, or null while there is nothing to link. */
+  function playUrl() { return PLAY_STORE.test(PLAY_URL) ? PLAY_URL : null; }
+
+  /** [url] is the store address, or null while there is nothing to link.
+   *  Nothing here touches href: the button leads to /go/<store>/ in both states,
+   *  so a reader can press it and a press can be counted either way. */
+  function drawStore(store, url) {
     var live = !!url;
-    each('[data-install]', function (el) {
-      if (live) {
-        el.href = url;
-        el.target = '_blank';
-        el.rel = 'noopener';
-        el.removeAttribute('aria-disabled');
-        el.textContent = 'App Store 에서 받기';
-        el.classList.remove('install-pending');
-      } else {
-        el.removeAttribute('href');
-        el.removeAttribute('target');
-        el.removeAttribute('rel');
-        // An <a> with no href is already not a link. This says so out loud,
-        // for a reader who meets the button through a screen reader.
-        el.setAttribute('aria-disabled', 'true');
-        el.textContent = 'App Store 심사 중이에요';
-        el.classList.add('install-pending');
+    each('[data-install="' + store + '"]', function (el) {
+      el.classList.toggle('install-pending', !live);
+      // The top pills carry the store name and nothing else. Two full sentences
+      // do not fit beside the mark on a 390px screen, and a pill that wrapped
+      // would push the mark off the bar.
+      if (!el.hasAttribute('data-keep-label')) {
+        el.textContent = LABELS[store][live ? 'live' : 'pending'];
       }
     });
-    each('[data-install-when="pending"]', function (el) { el.hidden = live; });
-    each('[data-install-when="live"]', function (el) { el.hidden = !live; });
+    each('[data-' + store + '-when="pending"]', function (el) { el.hidden = live; });
+    each('[data-' + store + '-when="live"]', function (el) { el.hidden = !live; });
   }
 
   function cached() {
@@ -81,9 +88,10 @@
     } catch (e) { /* a browser that keeps nothing still draws the right button */ }
   }
 
-  function askApple() {
+  /** Asks Apple and hands back the address, or null. [cb] runs exactly once. */
+  function askApple(cb) {
     var hit = cached();
-    if (hit !== undefined) { drawInstall(hit); return; }
+    if (hit !== undefined) { cb(hit); return; }
     fetch(LOOKUP)
       .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
       .then(function (d) {
@@ -91,14 +99,23 @@
         var url = (d && d.resultCount > 0 && rows[0] && rows[0].trackViewUrl) || '';
         var ok = APPLE_URL.test(url) ? url : null;
         remember(ok);   // a lookup that answered is worth keeping, either way
-        drawInstall(ok);
+        cb(ok);
       })
       // A lookup we could not make is not a release. The page stays as it
       // shipped and nothing is cached, so the next open asks again.
-      .catch(function () { drawInstall(null); });
+      .catch(function () { cb(null); });
   }
 
-  askApple();
+  /* The /go/ pages read the same two answers from here, so the Play address
+     lives in one place and the App Store one is asked the one way. */
+  window.TAILF = { PLAY_URL: playUrl(), appStoreUrl: askApple };
+
+  /* A page with no store button asks nobody: /go/play/ has no business
+     opening a connection to Apple. */
+  if (document.querySelector('[data-install]')) {
+    drawStore('play', playUrl());
+    askApple(function (url) { drawStore('appstore', url); });
+  }
 
   var API = 'https://api.asyncsite.com/api/public/jobs';
   var PAGE_SIZE = 100;   // the API caps page size at 100 (jobs_api.dart)
