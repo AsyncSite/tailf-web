@@ -13,6 +13,8 @@
  *     the stack step and only the threshold decides
  *   - the 30-day window: watch/backtest.dart `run` — posted_at within the last
  *     30 days, postings already taken down included
+ *   - 「N번」: watch/backtest.dart `ringDays` — the distinct dates the matched
+ *     postings were posted on, because the digest goes out once a night
  * A number this file cannot count is not drawn. If the list does not arrive,
  * the whole section leaves rather than showing a number we did not count.
  */
@@ -142,7 +144,9 @@
   var groupsEl = document.getElementById('try-groups');
   var bigEl = document.getElementById('try-big');
   var secondEl = document.getElementById('try-second');
+  var daysEl = document.getElementById('try-days');
   var basisEl = document.getElementById('try-basis');
+  var noteEl = document.getElementById('try-note');
 
   var chosen = [];   // chip labels, in the order they were pressed
   var rows = null;   // [{ s: [normalized skills], d: 'YYYY-MM-DD', a: isActive }]
@@ -214,13 +218,17 @@
     if (n === 0) {
       line(bigEl, '두 개만 고르면 돼요.');
       line(secondEl, '');
+      line(daysEl, '');
       line(basisEl, '');
+      line(noteEl, '');
       return;
     }
     if (rows === null) {
       line(bigEl, '세는 중이에요');
       line(secondEl, '');
+      line(daysEl, '');
       line(basisEl, n === 1 ? '하나만 더 고르면 돼요.' : '');
+      line(noteEl, '');
       return;
     }
 
@@ -238,22 +246,43 @@
     if (n === 1) {
       line(bigEl, countExactlyOne(active, m) + '건이 이 기술을 써요');
       line(secondEl, '');
+      line(daysEl, '');
       line(basisEl, '하나만 더 고르면 돼요.');
+      line(noteEl, '');
       return;
     }
 
     line(bigEl, '지금 이 기술이면 갈 수 있는 곳 ' + countAtLeast(active, m, 2) + '건');
+    // Stacks are all this page knows. The app narrows by career and workplace
+    // right after this number, so its count for the same stacks can be
+    // smaller, down to zero (T-503, persona P3: 25 here, 0 in the app).
+    line(noteEl, '기술만으로 센 값이에요. 경력이랑 지역은 앱에서 좁혀요.');
 
     var observed = window30.length;
     if (observed < 5) {  // backtest.dart `thinSample`
       line(secondEl, '지난 30일에 올라온 게 ' + observed + '건뿐이라 아직 말하기 어려워요.');
+      line(daysEl, '');
       line(basisEl, '');
       return;
     }
-    var rang = countAtLeast(window30, m, 2);
-    line(secondEl, rang > 0
+    // 「N번」 is how many nights the digest would have gone out, not how many
+    // postings it would have carried: backtest.dart `ringDays`, the distinct
+    // dates the matched postings were posted on (T-048 / T-503, persona P1:
+    // 38 in 30 days is not a number a once-a-day digest can reach). A row
+    // with no date still rang on some night; it cannot be placed on one, so
+    // every such row shares one ring rather than adding none.
+    var matched = 0, rang = 0, dates = {};
+    for (i = 0; i < window30.length; i++) {
+      if (overlap(window30[i], m) < 2) continue;
+      matched++;
+      if (!dates[window30[i].d]) { dates[window30[i].d] = 1; rang++; }
+    }
+    line(secondEl, matched > 0
       ? '지난 30일이었다면 ' + rang + '번 왔을 거예요'
       : '0번이에요. 두 개 이상 겹친 공고가 없었거든요.');
+    line(daysEl, matched > 0
+      ? '겹친 공고 ' + matched + '건이 ' + rang + '일에 걸쳐 올라왔어요. 하루 한 번 묶어서 와요.'
+      : '');
     line(basisEl, '지난 30일에 올라온 ' + observed + '건 기준이에요. 이미 내려간 것도 셌어요.');
   }
 
