@@ -143,6 +143,7 @@
   var bigEl = document.getElementById('try-big');
   var secondEl = document.getElementById('try-second');
   var basisEl = document.getElementById('try-basis');
+  var scopeEl = document.getElementById('try-scope');
 
   var chosen = [];   // chip labels, in the order they were pressed
   var rows = null;   // [{ s: [normalized skills], d: 'YYYY-MM-DD', a: isActive }]
@@ -180,6 +181,16 @@
     return n;
   }
 
+  /** backtest.dart `ringDates`: several matches posted on one calendar day
+   *  make one nightly notification. A missing date shares one unknown day. */
+  function countRingDays(list, m, floor) {
+    var dates = {};
+    for (var i = 0; i < list.length; i++) {
+      if (overlap(list[i], m) >= floor) dates[list[i].d] = 1;
+    }
+    return Object.keys(dates).length;
+  }
+
   /** matcher.dart `countSingleOverlap`: exactly one, and never a match. */
   function countExactlyOne(list, m) {
     var n = 0;
@@ -215,12 +226,14 @@
       line(bigEl, '두 개만 고르면 돼요.');
       line(secondEl, '');
       line(basisEl, '');
+      line(scopeEl, '');
       return;
     }
     if (rows === null) {
       line(bigEl, '세는 중이에요');
       line(secondEl, '');
       line(basisEl, n === 1 ? '하나만 더 고르면 돼요.' : '');
+      line(scopeEl, '');
       return;
     }
 
@@ -239,6 +252,7 @@
       line(bigEl, countExactlyOne(active, m) + '건이 이 기술을 써요');
       line(secondEl, '');
       line(basisEl, '하나만 더 고르면 돼요.');
+      line(scopeEl, '');
       return;
     }
 
@@ -248,13 +262,18 @@
     if (observed < 5) {  // backtest.dart `thinSample`
       line(secondEl, '지난 30일에 올라온 게 ' + observed + '건뿐이라 아직 말하기 어려워요.');
       line(basisEl, '');
+      line(scopeEl, '기술만으로 센 값이에요. 경력이랑 지역은 앱에서 좁혀요.');
       return;
     }
-    var rang = countAtLeast(window30, m, 2);
-    line(secondEl, rang > 0
-      ? '지난 30일이었다면 ' + rang + '번 왔을 거예요'
+    var matched = countAtLeast(window30, m, 2);
+    var ringDays = countRingDays(window30, m, 2);
+    line(secondEl, ringDays > 0
+      ? '지난 30일이었다면 ' + ringDays + '번 왔을 거예요'
       : '0번이에요. 두 개 이상 겹친 공고가 없었거든요.');
-    line(basisEl, '지난 30일에 올라온 ' + observed + '건 기준이에요. 이미 내려간 것도 셌어요.');
+    line(basisEl, ringDays > 0
+      ? '겹친 공고 ' + matched + '건이 ' + ringDays + '일에 걸쳐 올라왔어요. 하루 한 번 묶어서 와요.'
+      : '지난 30일에 올라온 ' + observed + '건을 봤어요.');
+    line(scopeEl, '지난 30일 기준이고 이미 내려간 것도 셌어요. 기술만으로 센 값이에요. 경력이랑 지역은 앱에서 좁혀요.');
   }
 
   function hideSection() {
