@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>App Store · tailf</title>
+<meta name="robots" content="noindex">
+<!-- 스크립트를 끈 브라우저를 위한 줄이에요. Apple 이 주는 주소가 확정되면 아래 한 줄의
+     주석을 풀고 그 주소를 적으세요. 스크립트가 켜진 브라우저는 이 줄 없이도 app.js 의
+     iTunes lookup 이 판정해서 바로 보냅니다.
+<meta http-equiv="refresh" content="0; url=https://apps.apple.com/kr/app/id6808048845">
+-->
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header><a class="mark" href="/">tail<span>&nbsp;-f</span></a></header>
+  <main class="go">
+    <h1>아직 App Store 심사 중이에요</h1>
+    <p>올라가면 이 주소가 바로 스토어로 이어져요.</p>
+    <p class="go-back"><a href="/">← tailf 첫 화면으로</a></p>
+  </main>
+</div>
+<script src="/app.js"></script>
+<script>
+/* Apple 이 앱을 내주면 이 화면은 읽히기 전에 스토어로 바뀝니다. 판정은 첫 화면의
+   버튼과 같은 lookup 이고, 주소는 Apple 이 준 것만 씁니다. */
+(function () {
+  if (!window.TAILF) return;
+  window.TAILF.appStoreUrl(function (url) {
+    if (url) window.location.replace(url);
+  });
+})();
+</script>
+</body>
+</html>

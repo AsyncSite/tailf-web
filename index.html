@@ -32,7 +32,10 @@
 <header class="topbar">
   <div class="page">
     <a class="mark" href="/">tail<span>&nbsp;-f</span></a>
-    <a class="topcta install-pending" data-install aria-disabled="true">App Store 심사 중이에요</a>
+    <nav class="topctas" aria-label="받는 곳">
+      <a class="topcta install-pending" href="/go/appstore/" data-install="appstore" data-keep-label>App Store</a>
+      <a class="topcta install-pending" href="/go/play/" data-install="play" data-keep-label>Google Play</a>
+    </nav>
   </div>
 </header>
 
@@ -47,9 +50,11 @@
         <p class="lede">받자마자 지난 30일이었다면 몇 번 왔을지 바로 알려드려요.</p>
         <p class="lede"><b>넣어둔 건 그 폰 안에만 있어요.</b> 로그인도 없고요.</p>
         <p class="cta-row">
-          <a class="btn install-pending" data-install aria-disabled="true">App Store 심사 중이에요</a>
+          <a class="btn install-pending" href="/go/appstore/" data-install="appstore">App Store 심사 중이에요</a>
+          <a class="btn install-pending" href="/go/play/" data-install="play">Google Play 에도 올라가요</a>
         </p>
-        <p class="cta-note" data-install-when="pending">App Store 에 올라가면 여기서 바로 받을 수 있어요.</p>
+        <p class="cta-note" data-appstore-when="pending">App Store 에 올라가면 여기서 바로 받을 수 있어요.</p>
+        <p class="cta-note" data-play-when="pending">Google Play 는 아이폰 다음이에요. 올라가면 여기서 바로 받을 수 있어요.</p>
       </div>
       <div class="hero-shot">
         <div class="phone">
@@ -85,9 +90,11 @@
     <div class="try-groups" id="try-groups"></div>
 
     <p class="cta-row">
-      <a class="btn install-pending" data-install aria-disabled="true">App Store 심사 중이에요</a>
+      <a class="btn install-pending" href="/go/appstore/" data-install="appstore">App Store 심사 중이에요</a>
+      <a class="btn install-pending" href="/go/play/" data-install="play">Google Play 에도 올라가요</a>
     </p>
-    <p class="cta-note" data-install-when="pending">App Store 에 올라가면 여기서 바로 받을 수 있어요.</p>
+    <p class="cta-note" data-appstore-when="pending">App Store 에 올라가면 여기서 바로 받을 수 있어요.</p>
+    <p class="cta-note" data-play-when="pending">Google Play 는 아이폰 다음이에요. 올라가면 여기서 바로 받을 수 있어요.</p>
     <p class="cta-note">여기서 고른 건 이 브라우저 안에만 있어요. 세는 것도 여기서 하고요. 저희 쪽으로 안 가요.</p>
   </section>
 
@@ -239,7 +246,7 @@
         </details>
         <details>
           <summary>아이폰만 되나요?</summary>
-          <p>지금은 아이폰만 돼요. 안드로이드는 아직이에요.</p>
+          <p>아이폰이 먼저예요. Google Play 에도 올라가고, 그때 안드로이드에서도 받을 수 있어요.</p>
         </details>
         <details>
           <summary>돈이 들어요?</summary>
@@ -251,12 +258,14 @@
 
   <!-- 8. 마지막 CTA -->
   <section class="page block last">
-    <h2>받는 곳은 App Store 한 곳이에요</h2>
-    <p class="block-sub" data-install-when="pending">App Store 에 올라가면 이 버튼을 누를 수 있어요. 그때까지 위에서 고른 기술로 몇 번 알림이 왔을지 먼저 세어 볼 수 있어요.</p>
-    <p class="block-sub" data-install-when="live" hidden>받기 전에 위에서 고른 기술로 몇 번 알림이 왔을지 먼저 세어 볼 수 있어요.</p>
+    <h2>받는 곳은 App Store 와 Google Play 예요</h2>
+    <p class="block-sub">받기 전에 위에서 고른 기술로 몇 번 알림이 왔을지 먼저 세어 볼 수 있어요.</p>
     <p class="cta-row">
-      <a class="btn install-pending" data-install aria-disabled="true">App Store 심사 중이에요</a>
+      <a class="btn install-pending" href="/go/appstore/" data-install="appstore">App Store 심사 중이에요</a>
+      <a class="btn install-pending" href="/go/play/" data-install="play">Google Play 에도 올라가요</a>
     </p>
+    <p class="cta-note" data-appstore-when="pending">App Store 에 올라가면 여기서 바로 받을 수 있어요.</p>
+    <p class="cta-note" data-play-when="pending">Google Play 는 아이폰 다음이에요. 올라가면 여기서 바로 받을 수 있어요.</p>
     <p class="cta-note">쓰다가 이상한 데를 찾으시면 <a href="mailto:asyncsite@gmail.com">asyncsite@gmail.com</a> 으로 메일 주세요.</p>
   </section>
 
