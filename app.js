@@ -46,9 +46,38 @@
     play: { live: 'Google Play 에서 받기', pending: 'Google Play 에도 올라가요' }
   };
 
+  /* Distribution links use a short fixed path instead of a cookie or a free-
+     form query value. Cloudflare Web Analytics can count the source from
+     requestPath without learning who the reader is. */
+  var ACQUISITION_SOURCES = {
+    newsletter: 1,
+    lounge: 1,
+    cohort: 1,
+    community: 1
+  };
+
+  function acquisitionSource() {
+    var match = window.location.pathname.match(
+      /^\/(?:from|go\/(?:appstore|play))\/([^/]+)\/?$/
+    );
+    var source = match && match[1];
+    return source && ACQUISITION_SOURCES[source] ? source : null;
+  }
+
   function each(sel, fn) {
     var all = document.querySelectorAll(sel);
     for (var i = 0; i < all.length; i++) fn(all[i]);
+  }
+
+  function routeInstallLinks() {
+    var source = acquisitionSource();
+    if (!source) return;
+    each('[data-install]', function (el) {
+      var store = el.getAttribute('data-install');
+      if (store === 'appstore' || store === 'play') {
+        el.href = '/go/' + store + '/' + source + '/';
+      }
+    });
   }
 
   /** The Play address, or null while there is nothing to link. */
@@ -108,11 +137,16 @@
 
   /* The /go/ pages read the same two answers from here, so the Play address
      lives in one place and the App Store one is asked the one way. */
-  window.TAILF = { PLAY_URL: playUrl(), appStoreUrl: askApple };
+  window.TAILF = {
+    PLAY_URL: playUrl(),
+    appStoreUrl: askApple,
+    acquisitionSource: acquisitionSource()
+  };
 
   /* A page with no store button asks nobody: /go/play/ has no business
      opening a connection to Apple. */
   if (document.querySelector('[data-install]')) {
+    routeInstallLinks();
     drawStore('play', playUrl());
     askApple(function (url) { drawStore('appstore', url); });
   }

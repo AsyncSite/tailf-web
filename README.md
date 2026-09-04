@@ -12,6 +12,20 @@ https://tailf.asyncsite.com 의 정적 랜딩입니다. 빌드 단계가 없고,
 
 설치 버튼은 상태와 무관하게 항상 `/go/appstore/` 나 `/go/play/` 로 갑니다. 그래서 **설치 클릭률 = (`/go/appstore/` + `/go/play/`) 페이지뷰 ÷ `/` 페이지뷰** 입니다. 계기는 Cloudflare Web Analytics 이고 `asyncsite.com` 존에 자동 설치돼 있습니다. 이 저장소에는 계측 스크립트가 없고, 넣지도 않습니다.
 
+배포 채널은 개인 식별값 대신 아래 고정 경로를 씁니다. `_redirects`가 같은 첫 화면을 200
+rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설치 버튼도 같은 채널의
+`/go/` 경로로 이어 줍니다. 임의 문자열은 채널로 인정하지 않습니다.
+
+| 채널 | 배포 주소 |
+|---|---|
+| 뉴스레터 | `https://tailf.asyncsite.com/from/newsletter/` |
+| 그릿 라운지 | `https://tailf.asyncsite.com/from/lounge/` |
+| 기수 채널 | `https://tailf.asyncsite.com/from/cohort/` |
+| 외부 커뮤니티 | `https://tailf.asyncsite.com/from/community/` |
+
+채널별 방문과 설치 클릭은 `/from/{채널}/`, `/go/appstore/{채널}/`,
+`/go/play/{채널}/` 페이지뷰로 집계합니다. 이름, 이메일, 조건, 기기 식별자는 붙이지 않습니다.
+
 ```graphql
 query{viewer{accounts(filter:{accountTag:"<ACCOUNT_TAG>"}){rumPageloadEventsAdaptiveGroups(limit:100,filter:{datetime_geq:"<ISO8601>",requestHost:"tailf.asyncsite.com"},dimensions:[requestPath]){count dimensions{requestPath}}}}}
 ```
