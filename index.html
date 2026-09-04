@@ -69,7 +69,28 @@
     </div>
   </section>
 
-  <!-- 3. 이렇게 씁니다 -->
+  <!-- 3. 설치 전에 세어 보기 -->
+  <section class="page block try" id="try" hidden>
+    <p class="eyebrow">설치 전에 세어 보기</p>
+    <h2>무슨 기술 쓰세요?</h2>
+    <p class="block-sub">두 개 이상 겹칠 때만 와요. 하나만 겹치면 너무 많거든요.</p>
+
+    <div class="try-panel" aria-live="polite">
+      <p class="try-big" id="try-big">두 개만 고르면 돼요.</p>
+      <p class="try-second" id="try-second" hidden></p>
+      <p class="try-basis" id="try-basis" hidden></p>
+    </div>
+
+    <p class="try-multi">여러 개 골라도 돼요</p>
+    <div class="try-groups" id="try-groups"></div>
+
+    <p class="cta-row">
+      <a class="btn" href="https://testflight.apple.com/join/5J2W3M5p" target="_blank" rel="noopener">이 기술로 잠금화면에서 받기</a>
+    </p>
+    <p class="cta-note">여기서 고른 건 이 브라우저 안에만 있어요. 세는 것도 여기서 하고요. 저희 쪽으로 안 가요.</p>
+  </section>
+
+  <!-- 4. 이렇게 씁니다 -->
   <section class="page block">
     <p class="eyebrow">이렇게 써요</p>
     <h2>딱 세 단계예요</h2>
@@ -122,7 +143,7 @@
     <p class="step-tail">그리고 담아둔 공고가 회사 사이트에서 내려가면 그날 알려드려요. 저희가 회사 사이트를 직접 보고 있거든요.</p>
   </section>
 
-  <!-- 4. 왜 조용한가 -->
+  <!-- 5. 왜 조용한가 -->
   <section class="band">
     <div class="page block">
       <p class="eyebrow">조용한 게 일하고 있는 거예요</p>
@@ -149,7 +170,7 @@
     </div>
   </section>
 
-  <!-- 5. 한눈에 -->
+  <!-- 6. 한눈에 -->
   <section class="page block">
     <p class="eyebrow">한눈에</p>
     <h2>화면 일곱 개</h2>
@@ -188,7 +209,7 @@
     <p class="gallery-hint">옆으로 밀어서 볼 수 있어요.</p>
   </section>
 
-  <!-- 6. FAQ -->
+  <!-- 7. FAQ -->
   <section class="band">
     <div class="page block">
       <p class="eyebrow">FAQ</p>
@@ -227,7 +248,7 @@
     </div>
   </section>
 
-  <!-- 7. 마지막 CTA -->
+  <!-- 8. 마지막 CTA -->
   <section class="page block last">
     <h2>tailf 1기를 모으고 있어요</h2>
     <p class="block-sub">지금은 비공개로 테스트 중이에요. 링크로 들어오면 심사가 끝나는 대로 받을 수 있어요.</p>
@@ -262,6 +283,8 @@
   "privacyPolicy": "https://tailf.asyncsite.com/privacy/"
 }
 </script>
+
+<script src="/app.js" defer></script>
 
 <script>
 fetch('https://api.asyncsite.com/api/public/jobs?jobFamily=ENGINEERING&page=0&size=1')
