@@ -2,3 +2,5 @@
 /from/lounge/ /index.html 200
 /from/cohort/ /index.html 200
 /from/community/ /index.html 200
+/signal/backtest-started/* /signal/backtest-started/index.html 200
+/signal/backtest-completed/* /signal/backtest-completed/index.html 200

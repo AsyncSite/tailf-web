@@ -64,6 +64,41 @@
     return source && ACQUISITION_SOURCES[source] ? source : null;
   }
 
+  /* Web Analytics already measures page loads on this host. Loading one of
+     these fixed, noindex documents lets it count the two useful backtest
+     actions without sending a stack, profile, cookie, or free-form value.
+     sessionStorage prevents repeat taps from inflating one browser session. */
+  var SIGNALS = {
+    'backtest-started': 1,
+    'backtest-completed': 1
+  };
+  var emittedSignals = {};
+
+  function emitSignal(name) {
+    if (!SIGNALS[name] || emittedSignals[name]) return;
+    var key = 'tailf.signal.' + name + '.v1';
+    try {
+      if (window.sessionStorage.getItem(key)) {
+        emittedSignals[name] = true;
+        return;
+      }
+      window.sessionStorage.setItem(key, '1');
+    } catch (e) { /* in-memory dedup still applies when storage is disabled */ }
+    emittedSignals[name] = true;
+
+    var source = acquisitionSource();
+    var frame = document.createElement('iframe');
+    frame.src = '/signal/' + name + '/' + (source ? source + '/' : '');
+    frame.title = '';
+    frame.tabIndex = -1;
+    frame.setAttribute('aria-hidden', 'true');
+    frame.style.cssText = 'position:absolute;width:1px;height:1px;border:0;opacity:0;pointer-events:none';
+    document.body.appendChild(frame);
+    window.setTimeout(function () {
+      if (frame.parentNode) frame.parentNode.removeChild(frame);
+    }, 8000);
+  }
+
   function each(sel, fn) {
     var all = document.querySelectorAll(sel);
     for (var i = 0; i < all.length; i++) fn(all[i]);
@@ -290,6 +325,8 @@
       return;
     }
 
+    emitSignal('backtest-completed');
+
     line(bigEl, '지금 이 기술이면 갈 수 있는 곳 ' + countAtLeast(active, m, 2) + '건');
 
     var observed = window30.length;
@@ -351,6 +388,7 @@
     b.setAttribute('aria-pressed', 'false');
     b.setAttribute('data-stack', label);
     b.addEventListener('click', function () {
+      emitSignal('backtest-started');
       var at = chosen.indexOf(label);
       if (at >= 0) chosen.splice(at, 1); else chosen.push(label);
       var on = at < 0;

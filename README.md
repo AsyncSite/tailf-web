@@ -26,6 +26,11 @@ rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설
 채널별 방문과 설치 클릭은 `/from/{채널}/`, `/go/appstore/{채널}/`,
 `/go/play/{채널}/` 페이지뷰로 집계합니다. 이름, 이메일, 조건, 기기 식별자는 붙이지 않습니다.
 
+익명 백테스트는 첫 기술 선택 때 `/signal/backtest-started/{채널}/`, 두 기술 이상을
+고르고 실제 집계가 끝났을 때 `/signal/backtest-completed/{채널}/`의 숨은 noindex 문서를
+세션당 한 번 불러옵니다. Cloudflare Web Analytics에는 이 고정 경로만 남으며, 고른 기술과
+조건은 보내지 않습니다. 시작률은 시작/방문, 완료율은 완료/시작으로 읽습니다.
+
 ```graphql
 query{viewer{accounts(filter:{accountTag:"<ACCOUNT_TAG>"}){rumPageloadEventsAdaptiveGroups(limit:100,filter:{datetime_geq:"<ISO8601>",requestHost:"tailf.asyncsite.com"},dimensions:[requestPath]){count dimensions{requestPath}}}}}
 ```
