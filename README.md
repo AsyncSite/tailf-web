@@ -35,6 +35,8 @@ rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설
 적용됩니다. 유입 주소에 임의 쿼리가 붙어도 API, 신호, RUM 요청의
 Referer로 전달되지 않게 하는 경계입니다. Cloudflare는 CDN과 보안과 웹 성능
 집계를 맡으며, 봇 검사 상태용 `cf_clearance` 쿠키를 설정할 수 있습니다.
+`/signal/*`에는 `X-Robots-Tag: noindex, nofollow`도 적용해 알려지지 않은
+신호 하위 경로가 첫 화면 fallback으로 응답하더라도 검색 결과에 남지 않게 합니다.
 
 ```graphql
 query{viewer{accounts(filter:{accountTag:"<ACCOUNT_TAG>"}){rumPageloadEventsAdaptiveGroups(limit:100,filter:{datetime_geq:"<ISO8601>",requestHost:"tailf.asyncsite.com"},dimensions:[requestPath]){count dimensions{requestPath}}}}}

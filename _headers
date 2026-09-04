@@ -2,3 +2,5 @@
   Referrer-Policy: no-referrer
   X-Content-Type-Options: nosniff
 
+/signal/*
+  X-Robots-Tag: noindex, nofollow
