@@ -327,7 +327,7 @@
 
     emitSignal('backtest-completed');
 
-    line(bigEl, '지금 이 기술이면 갈 수 있는 곳 ' + countAtLeast(active, m, 2) + '건');
+    line(bigEl, '내 기술과 겹치는 채용 공고 ' + countAtLeast(active, m, 2) + '개');
 
     var observed = window30.length;
     if (observed < 5) {  // backtest.dart `thinSample`
