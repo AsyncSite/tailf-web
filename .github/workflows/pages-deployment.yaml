@@ -27,3 +27,10 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy . --project-name=tailf-web --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify IndexNow
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST https://api.indexnow.org/indexnow \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data '{"host":"tailf.asyncsite.com","key":"e588df4aec01250f0622d3984d84a58c","keyLocation":"https://tailf.asyncsite.com/e588df4aec01250f0622d3984d84a58c.txt","urlList":["https://tailf.asyncsite.com/","https://tailf.asyncsite.com/privacy/","https://tailf.asyncsite.com/support/"]}'
