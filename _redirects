@@ -2,3 +2,7 @@
 /from/lounge/ /index.html 200
 /from/cohort/ /index.html 200
 /from/community/ /index.html 200
+/go/testflight/newsletter/ /go/testflight/index.html 200
+/go/testflight/lounge/ /go/testflight/index.html 200
+/go/testflight/cohort/ /go/testflight/index.html 200
+/go/testflight/community/ /go/testflight/index.html 200

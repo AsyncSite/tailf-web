@@ -10,5 +10,11 @@
   }
   if (store === 'play' && window.TAILF.PLAY_URL) {
     window.location.replace(window.TAILF.PLAY_URL);
+    return;
+  }
+  if (store === 'testflight' && window.TAILF.TESTFLIGHT_URL) {
+    window.setTimeout(function () {
+      window.location.replace(window.TAILF.TESTFLIGHT_URL);
+    }, 800);
   }
 })();

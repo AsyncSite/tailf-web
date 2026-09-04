@@ -10,7 +10,7 @@ https://tailf.asyncsite.com 의 정적 랜딩입니다. 빌드 단계가 없고,
 
 ## 설치 클릭률 읽는 법
 
-설치 버튼은 상태와 무관하게 항상 `/go/appstore/` 나 `/go/play/` 로 갑니다. 그래서 **설치 클릭률 = (`/go/appstore/` + `/go/play/`) 페이지뷰 ÷ `/` 페이지뷰** 입니다. 계기는 Cloudflare Web Analytics 이고 `asyncsite.com` 존에 자동 설치돼 있습니다. 이 저장소에는 계측 스크립트가 없고, 넣지도 않습니다.
+설치 버튼은 상태와 무관하게 항상 `/go/appstore/` 나 `/go/play/` 로 갑니다. 첫 기수 경로에만 TestFlight 공개 테스트 진입이 보이고 `/go/testflight/cohort/`를 거쳐 Apple의 고정 공개 링크로 갑니다. 그래서 **설치 의도 클릭률 = (`/go/appstore/` + `/go/play/` + `/go/testflight/`) 페이지뷰 ÷ 랜딩 페이지뷰** 입니다. 스토어 둘과 TestFlight 클릭은 보고에서 따로 보여 심사 안내 클릭을 베타 설치 의도로 바꾸지 않습니다. 계기는 Cloudflare Web Analytics 이고 `asyncsite.com` 존에 자동 설치돼 있습니다. 이 저장소에는 계측 스크립트가 없고, 넣지도 않습니다.
 
 배포 채널은 개인 식별값 대신 아래 고정 경로를 씁니다. `_redirects`가 같은 첫 화면을 200
 rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설치 버튼도 같은 채널의
@@ -24,7 +24,7 @@ rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설
 | 외부 커뮤니티 | `https://tailf.asyncsite.com/from/community/` |
 
 채널별 방문과 설치 클릭은 `/from/{채널}/`, `/go/appstore/{채널}/`,
-`/go/play/{채널}/` 페이지뷰로 집계합니다. 이름, 이메일, 조건, 기기 식별자는 붙이지 않습니다.
+`/go/play/{채널}/`, `/go/testflight/{채널}/` 페이지뷰로 집계합니다. 이름, 이메일, 조건, 기기 식별자는 붙이지 않습니다.
 
 익명 백테스트는 첫 기술 선택 때 `/signal/backtest-started/{채널}/`, 두 기술 이상을
 고르고 실제 집계가 끝났을 때 `/signal/backtest-completed/{채널}/`의 숨은 noindex 문서를

@@ -32,6 +32,7 @@
      every Play button on the site, the top pill included, leads to it. An empty
      string is the honest state while Play has nothing of ours. */
   var PLAY_URL = '';
+  var TESTFLIGHT_URL = 'https://testflight.apple.com/join/5J2W3M5p';
 
   var LOOKUP = 'https://itunes.apple.com/lookup?id=6808048845&country=kr';
   var CACHE_KEY = 'tailf.appstore.v1';
@@ -58,7 +59,7 @@
 
   function acquisitionSource() {
     var match = window.location.pathname.match(
-      /^\/(?:from|go\/(?:appstore|play))\/([^/]+)\/?$/
+      /^\/(?:from|go\/(?:appstore|play|testflight))\/([^/]+)\/?$/
     );
     var source = match && match[1];
     return source && ACQUISITION_SOURCES[source] ? source : null;
@@ -110,10 +111,15 @@
     if (!source) return;
     each('[data-install]', function (el) {
       var store = el.getAttribute('data-install');
-      if (store === 'appstore' || store === 'play') {
+      if (store === 'appstore' || store === 'play' || store === 'testflight') {
         el.href = '/go/' + store + '/' + source + '/';
       }
     });
+  }
+
+  function drawTestFlightEntry() {
+    if (acquisitionSource() !== 'cohort') return;
+    each('[data-testflight-cta]', function (el) { el.hidden = false; });
   }
 
   /** The Play address, or null while there is nothing to link. */
@@ -175,6 +181,7 @@
      lives in one place and the App Store one is asked the one way. */
   window.TAILF = {
     PLAY_URL: playUrl(),
+    TESTFLIGHT_URL: TESTFLIGHT_URL,
     appStoreUrl: askApple,
     acquisitionSource: acquisitionSource()
   };
@@ -183,6 +190,7 @@
      opening a connection to Apple. */
   if (document.querySelector('[data-install]')) {
     routeInstallLinks();
+    drawTestFlightEntry();
     drawStore('play', playUrl());
     askApple(function (url) { drawStore('appstore', url); });
   }
