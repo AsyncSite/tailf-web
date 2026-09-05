@@ -105,6 +105,7 @@ function page({ title, description, body, canonical, status }) {
   .posting h1 { font-size: 24px; line-height: 1.3; letter-spacing: -0.03em; font-weight: 800; margin: 0; }
   .posting .meta { margin-top: 8px; font-size: 15px; color: var(--ink-2); }
   .posting .open { margin-top: 4px; font-size: 13.5px; color: var(--ink-3); }
+  .posting .history { margin: 4px 0 0; font-size: 13px; color: var(--ink-3); }
   .posting .closed { margin-top: 10px; display: inline-block; padding: 4px 11px; border-radius: 100px; background: var(--chip); color: var(--ink-2); font-size: 13px; font-weight: 700; }
   .posting .chips { margin-top: 14px; }
   .posting .chip { min-height: 36px; padding: 0 13px; font-size: 13.5px; cursor: default; }
@@ -167,8 +168,40 @@ function whyBlock() {
 <p class="privacy">이 링크에는 공고 번호 하나뿐이에요. 건넨 사람의 기술과 조건과 이름은 들어 있지 않아요.</p>`;
 }
 
+// Whether this title was posted before, as the posting carries it
+// (job-pipeline-008 `history`). Facts about the calendar, nothing about why;
+// the same sentences the app draws (tailf-app T-302). Nothing for NEW or for
+// a posting the server has not indexed.
+function dayKo(d, now) {
+  const md = (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+  return d.getFullYear() === now.getFullYear() ? md : d.getFullYear() + '년 ' + md;
+}
+function historyLines(h, postedAt, now) {
+  if (!h || typeof h !== 'object') return [];
+  const out = [];
+  if (h.kind === 'REPOST') {
+    const posted = postedAt ? new Date(postedAt) : null;
+    if (posted && !isNaN(posted) && Number.isInteger(h.gapDays)) {
+      const down = new Date(posted.getTime() - h.gapDays * 86400000);
+      out.push('이 공고는 ' + dayKo(down, now) + '에 내려갔다가 ' + h.gapDays + '일 만에 다시 올라왔어요. 이번이 ' + h.ordinal + '번째예요.');
+    } else {
+      out.push('이 공고는 전에도 올라온 적이 있어요. 이번이 ' + h.ordinal + '번째예요.');
+    }
+  } else if (h.kind === 'RENEWED') {
+    const first = h.firstSeenAt ? new Date(h.firstSeenAt) : null;
+    out.push(first && !isNaN(first)
+      ? '이 제목의 공고는 ' + dayKo(first, now) + '부터 ' + h.ordinal + '번 올라왔어요.'
+      : '이 제목의 공고는 ' + h.ordinal + '번 올라왔어요.');
+  }
+  if (Number.isInteger(h.openTwins) && h.openTwins > 0) {
+    out.push('같은 제목의 공고가 ' + h.openTwins + '건 더 열려 있어요.');
+  }
+  return out;
+}
+
 function postingBlock(job, now) {
   const title = titleWithoutCompany(job.title, job.company);
+  const history = historyLines(job.history, job.postedAt, now);
   const career = careerKo(job);
   const where = String(job.location || '').trim();
   const meta = [job.company, career, where].filter(Boolean).map(esc).join(' · ');
@@ -183,6 +216,7 @@ function postingBlock(job, now) {
   <h1>${esc(title)}</h1>
   <p class="meta">${meta}</p>
   ${closed ? '<p class="closed">이 공고는 내려갔어요</p>' : open ? '<p class="open">' + esc(open) + '</p>' : ''}
+  ${history.map((line) => '<p class="history">' + esc(line) + '</p>').join('')}
   ${skills.length ? '<div class="chips">' + skills.map((s) => '<span class="chip">' + esc(s) + '</span>').join('') + '</div>' : ''}
   ${shown ? '<p class="body">' + esc(shown) + '</p>' : ''}
   <p class="cta-row">
