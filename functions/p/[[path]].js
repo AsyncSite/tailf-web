@@ -199,9 +199,22 @@ function historyLines(h, postedAt, now) {
   return out;
 }
 
+// This company's posting flow over the last month, as the posting carries it
+// (job-pipeline-009 `companyPulse`). Four numbers said as what we saw, no
+// adjective; the same sentence the app draws (tailf-app T-303).
+function pulseLine(p) {
+  if (!p || typeof p !== 'object') return null;
+  const w = Number.isInteger(p.windowDays) ? p.windowDays : 30;
+  const a = p.opened30, b = p.opened30Prev, c = p.closed30;
+  if (![a, b, c].every(Number.isInteger)) return null;
+  if (a + b + c === 0) return '최근 ' + (w * 2) + '일 동안 이 회사의 새 개발 공고를 보지 못했어요.';
+  return '이 회사는 최근 ' + w + '일에 개발 공고 ' + a + '건을 올렸고 ' + c + '건을 내렸어요. 그 전 ' + w + '일에는 ' + b + '건을 올렸어요.';
+}
+
 function postingBlock(job, now) {
   const title = titleWithoutCompany(job.title, job.company);
   const history = historyLines(job.history, job.postedAt, now);
+  const pulse = pulseLine(job.companyPulse);
   const career = careerKo(job);
   const where = String(job.location || '').trim();
   const meta = [job.company, career, where].filter(Boolean).map(esc).join(' · ');
@@ -215,6 +228,7 @@ function postingBlock(job, now) {
 <article class="posting">
   <h1>${esc(title)}</h1>
   <p class="meta">${meta}</p>
+  ${pulse ? '<p class="history">' + esc(pulse) + '</p>' : ''}
   ${closed ? '<p class="closed">이 공고는 내려갔어요</p>' : open ? '<p class="open">' + esc(open) + '</p>' : ''}
   ${history.map((line) => '<p class="history">' + esc(line) + '</p>').join('')}
   ${skills.length ? '<div class="chips">' + skills.map((s) => '<span class="chip">' + esc(s) + '</span>').join('') + '</div>' : ''}
