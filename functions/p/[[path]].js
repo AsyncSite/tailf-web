@@ -270,11 +270,7 @@ export async function onRequest(context) {
       body: `<p class="eyebrow">건네받은 공고</p><article class="posting"><h1>지금은 불러오지 못했어요.</h1><p class="meta">잠시 뒤 이 링크를 다시 열어 주세요.</p></article>${whyBlock()}`,
     });
   }
-  // The public single-posting read answers 500 for an id it does not have
-  // (2026-09-05, /api/public/jobs/99999999). Until it says 404, a 500 here is
-  // read as 「찾을 수 없어요」 and not cached, so a real outage is retried on
-  // the next open rather than shown as a missing posting for five minutes.
-  if (res.status === 404 || res.status >= 500) {
+  if (res.status === 404) {
     return page({
       title: 'tailf · 이 공고는 찾을 수 없어요',
       description: '건네받은 공고가 더는 없어요.',
