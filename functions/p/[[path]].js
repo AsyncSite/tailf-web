@@ -279,6 +279,15 @@ export async function onRequest(context) {
       body: `<p class="eyebrow">건네받은 공고</p><article class="posting"><h1>이 공고는 찾을 수 없어요.</h1><p class="meta">내려갔거나 주소가 바뀌었을 수 있어요.</p></article>${whyBlock()}`,
     });
   }
+  if (!res.ok) {
+    return page({
+      title: 'tailf · 지금은 불러오지 못했어요',
+      description: '공고를 잠시 불러오지 못했어요.',
+      canonical,
+      status: 502,
+      body: `<p class="eyebrow">건네받은 공고</p><article class="posting"><h1>지금은 불러오지 못했어요.</h1></article>${whyBlock()}`,
+    });
+  }
   let job;
   try {
     job = await res.json();

@@ -39,10 +39,12 @@ test('renders a missing posting only for an upstream 404', async () => {
 });
 
 for (const status of [500, 503]) {
-  test(`keeps upstream ${status} as a temporary error`, async () => {
-    const response = await render(Response.json({ message: 'upstream error' }, { status }));
+  test(`keeps upstream ${status} with a valid-looking job as a temporary error`, async () => {
+    const response = await render(Response.json(job, { status }));
     assert.equal(response.status, 502);
-    assert.match(await response.text(), /지금은 불러오지 못했어요/);
+    const body = await response.text();
+    assert.match(body, /지금은 불러오지 못했어요/);
+    assert.doesNotMatch(body, /Backend Engineer/);
   });
 }
 
