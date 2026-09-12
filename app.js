@@ -22,8 +22,7 @@
  * a link in both of them: its href never moves, it always points at /go/<store>/,
  * and that page either forwards to the store or says what is actually happening.
  * That is the whole reason a state that has no store link is still pressable.
- * The released label is drawn only when the store itself answers with the app,
- * and the address is the one the store gives, never one we assemble.
+ * The released Apple address is the confirmed public Korean storefront.
  */
 (function () {
   'use strict';
@@ -34,12 +33,8 @@
   var PLAY_URL = '';
   var TESTFLIGHT_URL = 'https://testflight.apple.com/join/5J2W3M5p';
 
-  var LOOKUP = 'https://itunes.apple.com/lookup?id=6808048845&country=kr';
-  var CACHE_KEY = 'tailf.appstore.v1';
-  var CACHE_MS = 10 * 60 * 1000;
-  /* Only an address the store itself serves. A payload that carried anything
-     else would be a link we made up, and this page does not make up links. */
-  var APPLE_URL = /^https:\/\/(apps|itunes)\.apple\.com\//;
+  // Confirmed public Korean storefront for approved build 27.
+  var APP_STORE_URL = 'https://apps.apple.com/kr/app/tailf/id6808048845';
   var PLAY_STORE = /^https:\/\/play\.google\.com\/store\/apps\//;
 
   var LABELS = {
@@ -143,39 +138,8 @@
     each('[data-' + store + '-when="live"]', function (el) { el.hidden = !live; });
   }
 
-  function cached() {
-    try {
-      var raw = window.sessionStorage.getItem(CACHE_KEY);
-      if (!raw) return undefined;
-      var v = JSON.parse(raw);
-      if (!v || (Date.now() - v.at) > CACHE_MS) return undefined;
-      return v.url || null;   // null is a real answer: Apple has no app yet
-    } catch (e) { return undefined; }
-  }
-
-  function remember(url) {
-    try {
-      window.sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), url: url }));
-    } catch (e) { /* a browser that keeps nothing still draws the right button */ }
-  }
-
-  /** Asks Apple and hands back the address, or null. [cb] runs exactly once. */
-  function askApple(cb) {
-    var hit = cached();
-    if (hit !== undefined) { cb(hit); return; }
-    fetch(LOOKUP)
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
-      .then(function (d) {
-        var rows = (d && d.results) || [];
-        var url = (d && d.resultCount > 0 && rows[0] && rows[0].trackViewUrl) || '';
-        var ok = APPLE_URL.test(url) ? url : null;
-        remember(ok);   // a lookup that answered is worth keeping, either way
-        cb(ok);
-      })
-      // A lookup we could not make is not a release. The page stays as it
-      // shipped and nothing is cached, so the next open asks again.
-      .catch(function () { cb(null); });
-  }
+  /** The released storefront is already public; lookup indexing can lag. */
+  function askApple(cb) { cb(APP_STORE_URL); }
 
   /* The /go/ pages read the same two answers from here, so the Play address
      lives in one place and the App Store one is asked the one way. */
@@ -186,8 +150,7 @@
     acquisitionSource: acquisitionSource()
   };
 
-  /* A page with no store button asks nobody: /go/play/ has no business
-     opening a connection to Apple. */
+  /* A page with no store button has no landing state to draw. */
   if (document.querySelector('[data-install]')) {
     routeInstallLinks();
     drawTestFlightEntry();
