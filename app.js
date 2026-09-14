@@ -49,7 +49,8 @@
     newsletter: 1,
     lounge: 1,
     cohort: 1,
-    community: 1
+    community: 1,
+    threads: 1
   };
 
   function acquisitionSource() {
