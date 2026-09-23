@@ -1,9 +1,7 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-const source = await readFile(new URL('../functions/p/[[path]].js', import.meta.url), 'utf8');
-const { onRequest } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+const { onRequest } = await import('../lib/posting-page.mjs');
 
 const job = {
   id: 42,
@@ -13,6 +11,7 @@ const job = {
   isActive: true,
 };
 
+// The app hands out /p/{id} (no trailing slash); these are the shared-link cases.
 async function render(upstream) {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => upstream;

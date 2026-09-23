@@ -24,6 +24,7 @@ rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설
 | 외부 커뮤니티 | `https://tailf.asyncsite.com/from/community/` |
 | 스레드 답글 링크 | `https://tailf.asyncsite.com/go/appstore/threads/` |
 | 유튜브 설명 링크 | `https://tailf.asyncsite.com/go/appstore/youtube/` |
+| 검색 지면(공고·회사·직무·기술) | `https://tailf.asyncsite.com/go/appstore/seo/` |
 
 채널별 방문과 설치 클릭은 `/from/{채널}/`, `/go/appstore/{채널}/`,
 `/go/play/{채널}/`, `/go/testflight/{채널}/` 페이지뷰로 집계합니다. 이름, 이메일, 조건, 기기 식별자는 붙이지 않습니다.
@@ -62,3 +63,18 @@ query{viewer{accounts(filter:{accountTag:"<ACCOUNT_TAG>"}){rumPageloadEventsAdap
 | 아이폰이 먼저고 안드로이드가 뒤따릅니다. (이하 한 문단) | `/support/` 「지금은 어디서 받나요」 (그 페이지의 결대로 습니다체) |
 
 상단 알약 둘은 문장 대신 스토어 이름만 답니다(`data-keep-label`). 390px 화면에서 마크 옆에 두 문장이 서지 않아서이고, 상태는 알약의 색과 `/go/` 화면이 말합니다.
+
+## 검색 지면
+
+공고 한 건, 회사, 직무, 기술마다 검색에 걸리는 지면이 있습니다. 모든 지면의 설치 버튼은 `/go/appstore/seo/` 와 `/go/play/seo/` 로 이어져 검색 유입이 따로 세어집니다.
+
+| 주소 | 어디서 그리나 | 무엇 |
+|---|---|---|
+| `/p/{id}/` | `functions/p/[[path]].js` → `lib/posting-page.mjs` (매 요청 공개 API) | 공고 한 건. `JobPosting` JSON-LD. 내려간 공고는 410 과 noindex, 마감일이 지난 공고는 noindex |
+| `/p/{id}` | 같은 함수 | 앱의 「건네기」 링크. 건네받은 공고라고 말하고, canonical 은 `/p/{id}/` |
+| `/c/{companyId}/` | `functions/c/[[path]].js` → `lib/company-page.mjs` (매 요청 공개 API) | 회사 한 곳의 열린 개발 공고. 열린 공고가 없으면 noindex |
+| `/c/`, `/r/…`, `/t/…` | `scripts/build-seo.mjs` (배포 직전 생성, 커밋하지 않음) | 회사 목록, 직무별, 기술별(공고 20건 이상) 목록 |
+| `/sitemap.xml` | 같은 스크립트 | 사이트맵 인덱스. `sitemap-pages.xml` 만 커밋하고 `sitemap-jobs.xml` `sitemap-companies.xml` `sitemap-hubs.xml` 은 생성 |
+
+배포 워크플로는 push 때와 3시간마다 돌고, 생성 직후 바뀐 주소만 IndexNow 로 알립니다. 로컬에서 보려면 `node scripts/build-seo.mjs` 를 돌리고, 테스트는 `node --test tests/*.mjs` 입니다.
+

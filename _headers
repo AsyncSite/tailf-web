@@ -7,6 +7,3 @@
 
 /go/*
   X-Robots-Tag: noindex, nofollow
-
-/p/*
-  X-Robots-Tag: noindex, nofollow

@@ -1,2 +1,10 @@
 .wrangler/
 node_modules/
+# Written by scripts/build-seo.mjs right before each deploy.
+/sitemap.xml
+/sitemap-jobs.xml
+/sitemap-companies.xml
+/sitemap-hubs.xml
+/c/index.html
+/r/
+/t/
