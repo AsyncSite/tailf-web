@@ -417,9 +417,9 @@ test('the API refuses non-JSON writes, unknown sources and missing conditions', 
 test('every source has its visit and signal paths', () => {
   const redirects = readFileSync(new URL('../_redirects', import.meta.url), 'utf8');
   for (const s of ALERT_SOURCES) {
-    assert.ok(redirects.includes('/alerts/from/' + s + '/ /alerts/index.html 200'), s);
-    assert.ok(redirects.includes('/signal/alerts-subscribed/' + s + '/ /signal/alerts-subscribed/index.html 200'), s);
-    assert.ok(redirects.includes('/signal/alerts-confirmed/' + s + '/ /signal/alerts-confirmed/index.html 200'), s);
+    assert.ok(redirects.includes('/alerts/from/' + s + '/ /alerts/ 200'), s);
+    assert.ok(redirects.includes('/signal/alerts-subscribed/' + s + '/ /signal/alerts-subscribed/ 200'), s);
+    assert.ok(redirects.includes('/signal/alerts-confirmed/' + s + '/ /signal/alerts-confirmed/ 200'), s);
   }
 });
 
