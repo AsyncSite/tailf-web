@@ -4,6 +4,11 @@
 /from/community/ / 200
 /from/threads/ / 200
 /from/youtube/ / 200
+/from/geeknews/ / 200
+/from/okky/ / 200
+/from/disquiet/ / 200
+/from/velog/ / 200
+/from/discord/ / 200
 /go/testflight/newsletter/ /go/testflight/ 200
 /go/testflight/lounge/ /go/testflight/ 200
 /go/testflight/cohort/ /go/testflight/ 200
@@ -21,6 +26,11 @@
 /alerts/from/community/ /alerts/ 200
 /alerts/from/threads/ /alerts/ 200
 /alerts/from/youtube/ /alerts/ 200
+/alerts/from/geeknews/ /alerts/ 200
+/alerts/from/okky/ /alerts/ 200
+/alerts/from/disquiet/ /alerts/ 200
+/alerts/from/velog/ /alerts/ 200
+/alerts/from/discord/ /alerts/ 200
 /signal/alerts-subscribed/landing/ /signal/alerts-subscribed/ 200
 /signal/alerts-subscribed/posting/ /signal/alerts-subscribed/ 200
 /signal/alerts-subscribed/company/ /signal/alerts-subscribed/ 200
@@ -32,6 +42,11 @@
 /signal/alerts-subscribed/community/ /signal/alerts-subscribed/ 200
 /signal/alerts-subscribed/threads/ /signal/alerts-subscribed/ 200
 /signal/alerts-subscribed/youtube/ /signal/alerts-subscribed/ 200
+/signal/alerts-subscribed/geeknews/ /signal/alerts-subscribed/ 200
+/signal/alerts-subscribed/okky/ /signal/alerts-subscribed/ 200
+/signal/alerts-subscribed/disquiet/ /signal/alerts-subscribed/ 200
+/signal/alerts-subscribed/velog/ /signal/alerts-subscribed/ 200
+/signal/alerts-subscribed/discord/ /signal/alerts-subscribed/ 200
 /signal/alerts-confirmed/landing/ /signal/alerts-confirmed/ 200
 /signal/alerts-confirmed/posting/ /signal/alerts-confirmed/ 200
 /signal/alerts-confirmed/company/ /signal/alerts-confirmed/ 200
@@ -43,3 +58,8 @@
 /signal/alerts-confirmed/community/ /signal/alerts-confirmed/ 200
 /signal/alerts-confirmed/threads/ /signal/alerts-confirmed/ 200
 /signal/alerts-confirmed/youtube/ /signal/alerts-confirmed/ 200
+/signal/alerts-confirmed/geeknews/ /signal/alerts-confirmed/ 200
+/signal/alerts-confirmed/okky/ /signal/alerts-confirmed/ 200
+/signal/alerts-confirmed/disquiet/ /signal/alerts-confirmed/ 200
+/signal/alerts-confirmed/velog/ /signal/alerts-confirmed/ 200
+/signal/alerts-confirmed/discord/ /signal/alerts-confirmed/ 200

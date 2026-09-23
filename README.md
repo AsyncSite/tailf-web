@@ -25,6 +25,11 @@ rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설
 | 스레드 답글 링크 | `https://tailf.asyncsite.com/go/appstore/threads/` |
 | 유튜브 설명 링크 | `https://tailf.asyncsite.com/go/appstore/youtube/` |
 | 검색 지면(공고·회사·직무·기술) | `https://tailf.asyncsite.com/go/appstore/seo/` |
+| GeekNews Show GN | `https://tailf.asyncsite.com/from/geeknews/` |
+| OKKY 피드백 게시판 | `https://tailf.asyncsite.com/from/okky/` |
+| 디스콰이엇 프로덕트·메이커로그 | `https://tailf.asyncsite.com/from/disquiet/` |
+| velog 제작기 글 | `https://tailf.asyncsite.com/from/velog/` |
+| 개발자 디스코드 서버(홍보 채널이 있는 곳) | `https://tailf.asyncsite.com/from/discord/` |
 
 채널별 방문과 설치 클릭은 `/from/{채널}/`, `/go/appstore/{채널}/`,
 `/go/play/{채널}/`, `/go/testflight/{채널}/` 페이지뷰로 집계합니다. 이름, 이메일, 조건, 기기 식별자는 붙이지 않습니다.

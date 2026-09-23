@@ -52,7 +52,12 @@
     community: 1,
     threads: 1,
     youtube: 1,
-    seo: 1
+    seo: 1,
+    geeknews: 1,
+    okky: 1,
+    disquiet: 1,
+    velog: 1,
+    discord: 1
   };
 
   function acquisitionSource() {
