@@ -1,14 +1,14 @@
-/from/newsletter/ /index.html 200
-/from/lounge/ /index.html 200
-/from/cohort/ /index.html 200
-/from/community/ /index.html 200
-/from/threads/ /index.html 200
-/from/youtube/ /index.html 200
-/go/testflight/newsletter/ /go/testflight/index.html 200
-/go/testflight/lounge/ /go/testflight/index.html 200
-/go/testflight/cohort/ /go/testflight/index.html 200
-/go/testflight/community/ /go/testflight/index.html 200
-/go/testflight/threads/ /go/testflight/index.html 200
+/from/newsletter/ / 200
+/from/lounge/ / 200
+/from/cohort/ / 200
+/from/community/ / 200
+/from/threads/ / 200
+/from/youtube/ / 200
+/go/testflight/newsletter/ /go/testflight/ 200
+/go/testflight/lounge/ /go/testflight/ 200
+/go/testflight/cohort/ /go/testflight/ 200
+/go/testflight/community/ /go/testflight/ 200
+/go/testflight/threads/ /go/testflight/ 200
 
 /alerts/from/landing/ /alerts/ 200
 /alerts/from/posting/ /alerts/ 200
