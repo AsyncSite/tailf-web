@@ -1,0 +1,19 @@
+# The web alert sender. Secrets (set once with the Cloudflare API, never in git):
+#   ALERTS_SECRET          link tokens and destination encryption, same value as the Pages project
+#   SES_ACCESS_KEY_ID      IAM user tailf-web-alerts-mailer (ses:SendEmail from alerts@asyncsite.com only)
+#   SES_SECRET_ACCESS_KEY
+name = "tailf-alert-sender"
+main = "index.mjs"
+compatibility_date = "2026-09-01"
+workers_dev = false
+keep_vars = true
+
+[triggers]
+crons = ["17 * * * *"]
+
+[[kv_namespaces]]
+binding = "ALERTS"
+id = "6bbb7fe1ff11429285b0fd8deb02a4e1"
+
+[observability]
+enabled = true

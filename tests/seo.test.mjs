@@ -271,3 +271,15 @@ test('a posting links only to tech hubs the build wrote', async () => {
     globalThis.fetch = originalFetch;
   }
 });
+
+// ---------- the way to web alerts ----------
+
+test('posting and company pages lead to /alerts/ under their own source path', async () => {
+  const posting = await (await renderPosting('/p/3283/', () => Response.json(JOB))).text();
+  assert.match(posting, /href="\/alerts\/from\/posting\/\?role=backend"[^>]*>앱 없이 이메일·슬랙으로 받기</);
+  const shared = await (await renderPosting('/p/3283', () => Response.json(JOB))).text();
+  assert.match(shared, /href="\/alerts\/from\/posting\/\?role=backend"/);
+  const company = await (await renderCompany('/c/7/', [JOB])).text();
+  assert.match(company, /href="\/alerts\/from\/company\/"/);
+  assert.match(company, /static\.cloudflareinsights\.com\/beacon\.min\.js/);
+});

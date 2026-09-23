@@ -94,7 +94,7 @@ function hubPage({ path, title, h1, sub, description, crumbs, jobs, now, company
 </header>
 ${extra || ''}
 ${list ? '<ul class="jobs">\n' + list + '\n</ul>' : ''}
-${alertBlock()}
+${alertBlock(undefined, '/alerts/from/hub/')}
 <p class="privacy">${esc(kstDay(now))} 기준으로 tailf 가 본 공개 공고예요. 지원은 각 공고의 회사 사이트에서 해요.</p>`,
   }).html;
 }
@@ -117,7 +117,7 @@ function indexPage({ path, title, h1, sub, description, crumbs, items, now }) {
 <ul class="jobs">
 ${rows}
 </ul>
-${alertBlock()}
+${alertBlock(undefined, '/alerts/from/hub/')}
 <p class="privacy">${esc(kstDay(now))} 기준으로 tailf 가 본 공개 공고예요.</p>`,
   }).html;
 }

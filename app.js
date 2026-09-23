@@ -115,6 +115,14 @@
     });
   }
 
+  /* The landing's 「앱 없이 이메일·슬랙으로 받기」 links keep the channel the
+     reader arrived through, as /alerts/from/<source>/ (lib/alerts/sources.mjs). */
+  function routeAlertLinks() {
+    var source = acquisitionSource();
+    if (!source) return;
+    each('[data-alerts]', function (el) { el.href = '/alerts/from/' + source + '/'; });
+  }
+
   function drawTestFlightEntry() {
     if (acquisitionSource() !== 'cohort') return;
     each('[data-testflight-cta]', function (el) { el.hidden = false; });
@@ -156,6 +164,7 @@
   /* A page with no store button has no landing state to draw. */
   if (document.querySelector('[data-install]')) {
     routeInstallLinks();
+    routeAlertLinks();
     drawTestFlightEntry();
     drawStore('play', playUrl());
     askApple(function (url) { drawStore('appstore', url); });

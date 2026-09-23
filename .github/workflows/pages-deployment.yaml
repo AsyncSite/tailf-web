@@ -48,6 +48,16 @@ jobs:
           command: pages deploy . --project-name=tailf-web --branch=main
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
+      # The hourly web alert sender (workers/alert-sender, README 「앱 없이 받기」).
+      # Its secrets live in Cloudflare, so a redeploy keeps them.
+      - name: Deploy web alert sender
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: workers/alert-sender
+          command: deploy
+
       - name: Notify IndexNow
         env:
           CHANGED: ${{ runner.temp }}/indexnow.json
@@ -55,7 +65,7 @@ jobs:
           node -e '
             const fs = require("fs");
             const changed = JSON.parse(fs.readFileSync(process.env.CHANGED, "utf8"));
-            const base = ["https://tailf.asyncsite.com/", "https://tailf.asyncsite.com/privacy/", "https://tailf.asyncsite.com/support/"];
+            const base = ["https://tailf.asyncsite.com/", "https://tailf.asyncsite.com/alerts/", "https://tailf.asyncsite.com/privacy/", "https://tailf.asyncsite.com/support/"];
             const urls = process.env.GITHUB_EVENT_NAME === "push" ? [...new Set([...base, ...changed])] : changed;
             fs.writeFileSync("/tmp/indexnow-body.json", JSON.stringify({
               host: "tailf.asyncsite.com",

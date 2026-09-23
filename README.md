@@ -78,3 +78,22 @@ query{viewer{accounts(filter:{accountTag:"<ACCOUNT_TAG>"}){rumPageloadEventsAdap
 
 배포 워크플로는 push 때와 3시간마다 돌고, 생성 직후 바뀐 주소만 IndexNow 로 알립니다. 로컬에서 보려면 `node scripts/build-seo.mjs` 를 돌리고, 테스트는 `node --test tests/*.mjs` 입니다.
 
+
+## 앱 없이 받기 (웹 알림)
+
+`/alerts/` 에서 직무와 경력(필수), 근무지와 기술과 안 볼 회사(선택)를 고르고 받을 곳 하나(이메일, Slack 웹훅, Discord 웹훅)를 넣으면, 맞는 새 공고를 한 시간에 한 번까지 모아서 보냅니다. 맞는 게 없으면 보내지 않습니다.
+
+| 조각 | 어디 |
+|---|---|
+| 신청 화면, 관리 화면(`?id&t`), 확인, 그만 받기 | `alerts/` (정적) |
+| 신청·확인·관리 API | `functions/api/alerts/[[path]].js` → `lib/alerts/api.mjs` |
+| 매칭 | `lib/alerts/match.mjs`. 앱 `matcher.dart` 의 직무·경력·근무지 규칙을 옮겼고, 웹은 공고가 고른 직무를 직접 가리켜야 보냅니다. 기술은 순서만 정합니다 |
+| 발송 | `workers/alert-sender` (Cloudflare Worker, 매시 17분 cron) → `lib/alerts/sender.mjs` |
+| 저장 | Workers KV `tailf-web-alerts` (binding `ALERTS`), Pages 와 Worker 가 같이 씁니다 |
+| 메일 | Amazon SES `alerts@asyncsite.com`, 발송 전용 IAM 사용자 `tailf-web-alerts-mailer` |
+
+- 새 공고는 공고 번호로 가립니다. 신청(이메일은 확인)한 순간의 최신 번호가 출발점이고, 한 번 보낸 번호는 다시 보내지 않습니다. 보내기 전에 기록을 먼저 쓰므로 중간에 죽어도 두 번 가지는 않습니다.
+- 웹훅이 404·410 을 두 번 답하거나 어떤 실패든 다섯 번 이어지면 멈춥니다. 멈춘 신청은 30일 뒤 지웁니다.
+- 이메일은 확인 링크를 눌러야 시작하고, 확인하지 않은 신청은 7일 뒤 KV 에서 사라집니다. 모든 메일에 RFC 8058 한 번 누르기 해지 헤더가 있습니다.
+- 비밀값(`ALERTS_SECRET`, `SES_ACCESS_KEY_ID`, `SES_SECRET_ACCESS_KEY`)은 Pages 프로젝트와 Worker 양쪽에 같은 값으로 Cloudflare 에만 있습니다.
+- 유입은 `/alerts/from/{source}/` 방문, `/signal/alerts-subscribed/{source}/` 신청, `/signal/alerts-confirmed/{source}/` 확인 페이지뷰로 셉니다. 경로 이름은 `lib/alerts/sources.mjs` 가 정본이고 `_redirects` 가 같은 목록을 가집니다. 마지막 발송 요약은 KV `state:last-run` 에 있습니다.

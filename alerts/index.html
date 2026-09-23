@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tailf · 앱 없이 새 공고 알림 받기</title>
+<meta name="description" content="직무와 경력을 고르고 받을 곳을 넣어두면, 조건에 맞는 새 개발 공고를 이메일이나 Slack, Discord 로 모아서 보내요. 한 시간에 한 번까지, 맞는 게 있을 때만 보내요.">
+<link rel="canonical" href="https://tailf.asyncsite.com/alerts/">
+<meta name="theme-color" content="#F7FBF3">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="tailf">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://tailf.asyncsite.com/alerts/">
+<meta property="og:title" content="tailf · 앱 없이 새 공고 알림 받기">
+<meta property="og:description" content="조건에 맞는 새 개발 공고를 이메일이나 Slack, Discord 로 받아요. 팀과 스터디 채널에도 연결할 수 있어요.">
+<meta property="og:image" content="https://tailf.asyncsite.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/icon-64.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/alerts/alerts.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="page">
+    <a class="mark" href="/">tail<span>&nbsp;-f</span></a>
+    <nav class="topctas" aria-label="받는 곳">
+      <a class="topcta" href="/go/appstore/" data-install="appstore" data-keep-label>App Store</a>
+      <a class="topcta install-pending" href="/go/play/" data-install="play" data-keep-label>Google Play</a>
+    </nav>
+  </div>
+</header>
+
+<main class="alerts">
+  <header class="alerts-head">
+    <p class="eyebrow" id="eyebrow">앱 없이 받기</p>
+    <h1 id="title">새 공고를 이메일이나<br>Slack, Discord 로 받아요</h1>
+    <p class="block-sub" id="lead">직무와 경력을 고르고 받을 곳을 넣어두면, 그 조건에 맞는 새 개발 공고가 올라왔을 때 모아서 보내요. 한 시간에 한 번까지만 보내고, 맞는 게 없으면 보내지 않아요.</p>
+    <p class="manage-state" id="manage-state" hidden></p>
+  </header>
+
+  <form class="alerts-form" id="alert-form" novalidate>
+    <fieldset class="field">
+      <legend>찾는 직무 <span class="opt">여러 개 골라도 돼요</span></legend>
+      <div class="chips" data-group="roles" role="group" aria-label="찾는 직무"></div>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>경력 <span class="opt">여러 개 골라도 돼요</span></legend>
+      <div class="chips" data-group="bands" role="group" aria-label="경력"></div>
+      <p class="hint">공고에 경력이 적혀 있지 않으면 어느 경력을 골라도 보내요.</p>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend>근무지 <span class="opt">선택</span></legend>
+      <div class="chips" data-group="places" role="group" aria-label="근무지"></div>
+      <p class="hint">안 고르면 근무지는 따지지 않아요.</p>
+    </fieldset>
+
+    <div class="field">
+      <label for="skills">쓰는 기술 <span class="opt">선택</span></label>
+      <input id="skills" name="skills" type="text" autocomplete="off" placeholder="Java, Spring, Kafka" maxlength="400">
+      <p class="hint">쉼표로 나눠 적어요. 겹치는 기술이 많은 공고를 위에 놓아요. 기술 때문에 공고가 빠지지는 않아요.</p>
+    </div>
+
+    <div class="field">
+      <label for="exclude">안 볼 회사 <span class="opt">선택</span></label>
+      <input id="exclude" name="exclude" type="text" autocomplete="off" placeholder="지금 다니는 회사" maxlength="400">
+    </div>
+
+    <div class="preview" id="preview" aria-live="polite" hidden>
+      <p class="preview-n" id="preview-n"></p>
+      <ul class="preview-list" id="preview-list"></ul>
+      <p class="hint" id="preview-basis"></p>
+    </div>
+
+    <fieldset class="field" id="dest-field">
+      <legend>받을 곳</legend>
+      <div class="seg" role="radiogroup" aria-label="받을 곳">
+        <label><input type="radio" name="kind" value="email" checked><span>이메일</span></label>
+        <label><input type="radio" name="kind" value="slack"><span>Slack</span></label>
+        <label><input type="radio" name="kind" value="discord"><span>Discord</span></label>
+      </div>
+      <label class="sr" for="destination" id="dest-label">이메일 주소</label>
+      <input id="destination" name="destination" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" maxlength="300" required>
+      <p class="hint" id="dest-hint">받을 주소로 확인 메일을 보내요. 메일의 버튼을 눌러야 보내기 시작해요.</p>
+    </fieldset>
+
+    <div class="hp" aria-hidden="true">
+      <label for="website">웹사이트</label>
+      <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+    </div>
+
+    <p class="form-actions">
+      <button class="btn" type="submit" id="submit">새 공고 알림 받기</button>
+      <button class="btn quiet" type="button" id="pause" hidden>잠깐 쉬기</button>
+      <a class="stop" id="stop" href="#" hidden>그만 받기</a>
+    </p>
+    <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
+  </form>
+
+  <section class="done" id="done" hidden>
+    <h2 id="done-title"></h2>
+    <p class="block-sub" id="done-body"></p>
+    <p class="cta-note" id="done-manage" hidden></p>
+  </section>
+
+  <section class="notes">
+    <h2>보관하는 것</h2>
+    <p>받을 곳(이메일 주소나 웹훅 주소)과 고른 조건, 보낸 공고 번호만 보관해요. 받을 곳은 암호화해서 보관하고, 이름과 로그인은 없어요. 앱과 달리 조건이 저희 쪽에 있어야 보낼 수 있어서 이렇게 해요.</p>
+    <p>모든 메일과 메시지 끝에 조건 바꾸기와 그만 받기 링크가 있어요. 그만 받으면 받을 곳과 조건을 바로 지워요. 확인하지 않은 이메일 신청은 7일 뒤에 지워져요. 자세한 내용은 <a href="/privacy/">개인정보 처리방침</a>에 적어 뒀어요.</p>
+    <h2>팀이나 스터디 채널에 받으려면</h2>
+    <p>Slack 은 채널에 <a href="https://api.slack.com/messaging/webhooks" rel="noopener" target="_blank">Incoming Webhook</a> 을 추가하고 받은 주소를 붙여 넣어요. Discord 는 채널 설정의 연동에서 웹후크를 만들고 주소를 복사해 붙여 넣어요. 연결하자마자 그 채널에 확인 메시지를 한 번 보내요.</p>
+    <h2>폰에서 받고 싶다면</h2>
+    <p>앱은 조건을 폰 안에만 두고, 맞는 공고가 있는 날 잠금화면에 한 줄로 알려줘요. <a href="/go/appstore/" data-install="appstore" data-keep-label>App Store</a> · <a href="/go/play/" data-install="play" data-keep-label>Google Play</a></p>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="page">
+    <a href="/c/">회사별 공고</a><span class="sep">·</span><a href="/r/">직무별 공고</a><span class="sep">·</span><a href="/t/">기술별 공고</a><span class="sep">·</span><a href="/privacy/">개인정보 처리방침</a><span class="sep">·</span><a href="/support/">문의</a>
+    <span class="co">AsyncSite</span>
+  </div>
+</footer>
+
+<script src="/app.js" defer></script>
+<script type="module" src="/alerts/alerts.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "1903f0756d134ec896ce7b97670134ee"}'></script>
+</body>
+</html>
