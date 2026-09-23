@@ -22,6 +22,8 @@ rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설
 | 그릿 라운지 | `https://tailf.asyncsite.com/from/lounge/` |
 | 기수 채널 | `https://tailf.asyncsite.com/from/cohort/` |
 | 외부 커뮤니티 | `https://tailf.asyncsite.com/from/community/` |
+| 스레드 답글 링크 | `https://tailf.asyncsite.com/go/appstore/threads/` |
+| 유튜브 설명 링크 | `https://tailf.asyncsite.com/go/appstore/youtube/` |
 
 채널별 방문과 설치 클릭은 `/from/{채널}/`, `/go/appstore/{채널}/`,
 `/go/play/{채널}/`, `/go/testflight/{채널}/` 페이지뷰로 집계합니다. 이름, 이메일, 조건, 기기 식별자는 붙이지 않습니다.

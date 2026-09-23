@@ -50,7 +50,8 @@
     lounge: 1,
     cohort: 1,
     community: 1,
-    threads: 1
+    threads: 1,
+    youtube: 1
   };
 
   function acquisitionSource() {
