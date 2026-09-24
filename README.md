@@ -31,6 +31,12 @@ rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설
 | velog 제작기 글 | `https://tailf.asyncsite.com/from/velog/` |
 | 개발자 디스코드 서버(홍보 채널이 있는 곳) | `https://tailf.asyncsite.com/from/discord/` |
 
+글이 회사 한 곳이나 공고 한 건을 다루면 채널 링크는 첫 화면 대신 그 지면으로 갑니다.
+`/c/{companyId}/from/{채널}/`, `/p/{id}/from/{채널}/` 는 정본과 같은 지면이고 canonical 도
+정본이며, 제목 아래 알림 두 문(앱, 웹 알림)과 모든 설치·알림 버튼이 같은 채널 경로
+(`/go/appstore/{채널}/`, `/alerts/from/{채널}/`)로 이어집니다. 채널 이름은 `lib/seo.mjs`
+`PAGE_SOURCES` 가 정본입니다.
+
 채널별 방문과 설치 클릭은 `/from/{채널}/`, `/go/appstore/{채널}/`,
 `/go/play/{채널}/`, `/go/testflight/{채널}/` 페이지뷰로 집계합니다. 이름, 이메일, 조건, 기기 식별자는 붙이지 않습니다.
 

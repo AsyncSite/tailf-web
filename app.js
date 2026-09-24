@@ -66,7 +66,7 @@
 
   function acquisitionSource() {
     var match = window.location.pathname.match(
-      /^\/(?:from|go\/(?:appstore|play|testflight))\/([^/]+)\/?$/
+      /^\/(?:(?:from|go\/(?:appstore|play|testflight))|[cp]\/\d+\/from)\/([^/]+)\/?$/
     );
     var source = match && match[1];
     return source && ACQUISITION_SOURCES[source] ? source : null;

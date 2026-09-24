@@ -283,6 +283,13 @@ test('/c/ index bypasses the edge cache; /c/{id}/ is kept', async () => {
     const b = await companyRoute(ctx('https://tailf.asyncsite.com/c/12/', { params: { path: ['12'] } }));
     assert.equal(b.headers.get(EDGE_HEADER), 'HIT');
     assert.ok(cache.store.has('https://tailf.asyncsite.com/c/12/'));
+
+    // the channel twin is its own copy: its doors carry the channel, the plain page's do not
+    const t = await companyRoute(ctx('https://tailf.asyncsite.com/c/12/from/threads/?utm_source=threads', { params: { path: ['12', 'from', 'threads'] } }));
+    assert.equal(t.headers.get(EDGE_HEADER), 'MISS');
+    assert.match(await t.text(), /\/go\/appstore\/threads\//);
+    assert.ok(cache.store.has('https://tailf.asyncsite.com/c/12/from/threads/'));
+    assert.doesNotMatch(await (await companyRoute(ctx('https://tailf.asyncsite.com/c/12/', { params: { path: ['12'] } }))).text(), /\/go\/appstore\/threads\//);
   });
 });
 

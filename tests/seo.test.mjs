@@ -283,3 +283,58 @@ test('posting and company pages lead to /alerts/ under their own source path', a
   assert.match(company, /href="\/alerts\/from\/company\/"/);
   assert.match(company, /static\.cloudflareinsights\.com\/beacon\.min\.js/);
 });
+
+// ---------- channel posts link to the page they talk about ----------
+
+test('a company page reached from a channel keeps its canonical and routes every door through the channel', async () => {
+  const res = await renderCompany('/c/7/from/threads/', [JOB]);
+  assert.equal(res.status, 200);
+  const html = await res.text();
+  assert.match(html, /<link rel="canonical" href="https:\/\/tailf.asyncsite.com\/c\/7\/">/);
+  assert.match(html, /class="cta-row channel-strip"/);
+  assert.match(html, /href="\/go\/appstore\/threads\/"/);
+  assert.match(html, /href="\/go\/play\/threads\/"/);
+  assert.match(html, /href="\/alerts\/from\/threads\/"/);
+  assert.match(html, /href="\/p\/3283\/from\/threads\/"/);
+  assert.doesNotMatch(html, /\/go\/appstore\/seo\//);
+  // the strip sits above the list so a phone sees it without scrolling past every row
+  assert.ok(html.indexOf('channel-strip') < html.indexOf('<ul class="jobs">'));
+});
+
+test('a posting page reached from a channel routes its doors through the channel', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => (String(url).endsWith('/companies/with-count') ? Response.json([{ id: 7, name: '카카오뱅크', jobCount: 1 }]) : Response.json(JOB));
+  try {
+    const res = await postingPage({
+      request: new Request('https://tailf.asyncsite.com/p/3283/from/youtube/'),
+      params: { path: ['3283', 'from', 'youtube', ''] },
+    });
+    assert.equal(res.status, 200);
+    const html = await res.text();
+    assert.match(html, /<link rel="canonical" href="https:\/\/tailf.asyncsite.com\/p\/3283\/">/);
+    assert.match(html, /"@type":"JobPosting"/);
+    assert.match(html, /href="\/go\/appstore\/youtube\/"/);
+    assert.match(html, /href="\/alerts\/from\/youtube\/\?role=backend"/);
+    assert.match(html, /href="\/c\/7\/from\/youtube\/"/);
+    assert.doesNotMatch(html, /건넨 공고/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('an unknown channel word is not a page, and a missing slash keeps the channel', async () => {
+  const bad = await renderCompany('/c/7/from/somewhere/', [JOB]);
+  assert.equal(bad.status, 404);
+  const noSlash = await companyPage({
+    request: new Request('https://tailf.asyncsite.com/c/7/from/threads'),
+    params: { path: ['7', 'from', 'threads'] },
+    next: async () => new Response('static'),
+  });
+  assert.equal(noSlash.status, 301);
+  assert.equal(noSlash.headers.get('Location'), 'https://tailf.asyncsite.com/c/7/from/threads/');
+  const badPosting = await postingPage({
+    request: new Request('https://tailf.asyncsite.com/p/3283/from/somewhere/'),
+    params: { path: ['3283', 'from', 'somewhere', ''] },
+  });
+  assert.equal(badPosting.status, 404);
+});
