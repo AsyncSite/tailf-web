@@ -35,7 +35,7 @@ rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설
 `/c/{companyId}/from/{채널}/`, `/p/{id}/from/{채널}/` 는 정본과 같은 지면이고 canonical 도
 정본이며, 제목 아래 알림 두 문(앱, 웹 알림)과 모든 설치·알림 버튼이 같은 채널 경로
 (`/go/appstore/{채널}/`, `/alerts/from/{채널}/`)로 이어집니다. 채널 이름은 `lib/seo.mjs`
-`PAGE_SOURCES` 가 정본입니다.
+`PAGE_SOURCES` 가 정본입니다. 제목 아래 알림 띠는 검색으로 온 정본 지면(`/c/{id}/`, `/p/{id}/`)에도 있고, 그쪽 문은 `/go/appstore/seo/` 와 `/alerts/from/company/`·`/alerts/from/posting/` 입니다. 앱의 건네기 링크(`/p/{id}`)는 제 모양을 유지합니다.
 
 채널별 방문과 설치 클릭은 `/from/{채널}/`, `/go/appstore/{채널}/`,
 `/go/play/{채널}/`, `/go/testflight/{채널}/` 페이지뷰로 집계합니다. 이름, 이메일, 조건, 기기 식별자는 붙이지 않습니다.

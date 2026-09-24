@@ -338,3 +338,17 @@ test('an unknown channel word is not a page, and a missing slash keeps the chann
   });
   assert.equal(badPosting.status, 404);
 });
+
+test('canonical company and posting pages carry the top alert band on seo doors', async () => {
+  const company = await (await renderCompany('/c/7/', [JOB])).text();
+  assert.match(company, /<p class="cta-row channel-strip">\s*<a class="btn" href="\/go\/appstore\/seo\/"[^>]*>새 공고 알림 받기<\/a>\s*<a class="web-alerts" href="\/alerts\/from\/company\/">앱 없이 이메일·슬랙으로 받기<\/a>/);
+  assert.ok(company.indexOf('channel-strip">') < company.indexOf('<ul class="jobs">'));
+  assert.match(company, /<link rel="canonical" href="https:\/\/tailf.asyncsite.com\/c\/7\/">/);
+  const posting = await (await renderPosting('/p/3283/', () => Response.json(JOB))).text();
+  assert.match(posting, /channel-strip">\s*<a class="btn" href="\/go\/appstore\/seo\/"/);
+  assert.match(posting, /<a class="web-alerts" href="\/alerts\/from\/posting\/\?role=backend">/);
+  assert.ok(posting.indexOf('channel-strip">') < posting.indexOf('<article class="posting">'));
+  // the app's hand-off link keeps its own layout
+  const shared = await (await renderPosting('/p/3283', () => Response.json(JOB))).text();
+  assert.doesNotMatch(shared, /channel-strip">/);
+});
