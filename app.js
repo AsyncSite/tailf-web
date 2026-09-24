@@ -15,6 +15,10 @@
  *     30 days, postings already taken down included
  * A number this file cannot count is not drawn. If the list does not arrive,
  * the whole section leaves rather than showing a number we did not count.
+ *
+ * The list comes from /api/landing, one JSON the edge builds from the jobs API
+ * and keeps for ten minutes (lib/landing-data.mjs). It holds the same rows this
+ * file used to walk 13 pages for, so the counts are the same counts.
  */
 /* The store buttons, everywhere on the page, are one state component.
  *
@@ -175,11 +179,7 @@
     askApple(function (url) { drawStore('appstore', url); });
   }
 
-  var API = 'https://api.asyncsite.com/api/public/jobs';
-  var PAGE_SIZE = 100;   // the API caps page size at 100 (jobs_api.dart)
-  var MAX_ROWS = 1500;   // a guard against a feed that never says it is done
-  var MAX_PAGES = 20;    // same guard as tower.dart `_maxPages`
-  var CONCURRENCY = 4;
+  var DATA = '/api/landing';
   var DAYS = 30;
 
   /* Collaboration tools are useful at work but do not explain job fit.
@@ -194,6 +194,32 @@
     { name: '프론트와 모바일', stacks: ['Kotlin', 'TypeScript', 'React'] },
     { name: 'ML', stacks: ['PyTorch', 'LLM', 'TensorFlow'] }
   ];
+
+  var landing = null;
+  /** One request for the page: the hero count and the backtest rows. */
+  function landingData() {
+    if (!landing) {
+      landing = fetch(DATA, { headers: { Accept: 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); });
+    }
+    return landing;
+  }
+
+  /* 「지금 지켜보고 있는 채용 공고」: open developer postings. */
+  (function drawCount() {
+    var nEl = document.getElementById('n');
+    var subEl = document.getElementById('nsub');
+    if (!nEl || !subEl) return;
+    landingData().then(function (d) {
+      var n = d && d.total;
+      if (typeof n !== 'number') throw 0;
+      nEl.innerHTML = n.toLocaleString('ko-KR') + '<small>건</small>';
+      subEl.textContent = '지금 지켜보고 있는 채용 공고예요.';
+    }).catch(function () {
+      nEl.textContent = '지금 지켜보고 있는 채용 공고';
+      subEl.textContent = '지금은 수를 불러오지 못했습니다. 앱에서는 열 때마다 다시 셉니다.';
+    });
+  })();
 
   var section = document.getElementById('try');
   if (!section) return;
@@ -390,72 +416,15 @@
 
   /* ---------- the list ---------- */
 
-  function url(page) {
-    return API + '?jobFamily=ENGINEERING&page=' + page + '&size=' + PAGE_SIZE + '&includeInactive=true';
-  }
-
-  function getPage(page) {
-    return fetch(url(page))
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); });
-  }
-
-  /** Only what the rules read. The rest of a posting never enters memory. */
-  function reduce(body) {
-    var content = (body && body.content) || [];
-    var out = [];
-    for (var i = 0; i < content.length; i++) {
-      var j = content[i];
-      var skills = j.skills || [];
-      var s = [];
-      for (var k = 0; k < skills.length; k++) s.push(norm(skills[k]));
-      out.push({
-        s: s,
-        d: String(j.postedAt || '').split('T')[0],
-        a: j.isActive === true
-      });
-    }
-    return out;
-  }
-
+  /** The rows arrive already reduced to what the rules read
+   *  ({ s: normalized skills, d: posted day, a: active }), or null where the
+   *  walk would not be honest (a failed page, more than 15 pages). */
   function load() {
-    getPage(0).then(function (body) {
-      var first = reduce(body);
-      if (!first.length) throw 0;
-      var total = typeof body.totalPages === 'number' ? body.totalPages : 1;
-      var pages = Math.min(total, MAX_PAGES, Math.ceil(MAX_ROWS / PAGE_SIZE));
-      // 「갈 수 있는 곳」 is counted over every open posting, of any age, so a
-      // walk that stopped short would answer with a number smaller than the
-      // truth. A guard that trips is a section that leaves, not a number we
-      // shaded. (11 pages · 1,064 rows on 2026-09-04, caps at 15 · 1,500.)
-      if (total > pages) throw 0;
-      var got = [first];
-      var next = 1;
-
-      function worker() {
-        if (next >= pages) return Promise.resolve();
-        var page = next++;
-        return getPage(page).then(function (b) {
-          got[page] = reduce(b);
-          return worker();
-        });
-      }
-
-      var lanes = [];
-      for (var i = 0; i < CONCURRENCY; i++) lanes.push(worker());
-      return Promise.all(lanes).then(function () {
-        var all = [];
-        for (var p = 0; p < pages; p++) {
-          var chunk = got[p] || [];
-          for (var q = 0; q < chunk.length; q++) {
-            if (all.length >= MAX_ROWS) break;
-            all.push(chunk[q]);
-          }
-        }
-        // A half-read list would answer with a number we did not count.
-        if (!all.length) throw 0;
-        rows = all;
-        render();
-      });
+    landingData().then(function (body) {
+      var list = body && body.rows;
+      if (!list || !list.length) throw 0;
+      rows = list;
+      render();
     }).catch(hideSection);
   }
 
@@ -465,10 +434,6 @@
   render();
   section.hidden = false;   // no chips without the script that answers them
 
-  function begin() {
-    if (window.requestIdleCallback) window.requestIdleCallback(load, { timeout: 2500 });
-    else setTimeout(load, 1200);
-  }
-  if (document.readyState === 'complete') begin();
-  else window.addEventListener('load', begin);
+  // The request is already in flight for the hero count; this only waits on it.
+  load();
 })();

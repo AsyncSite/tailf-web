@@ -75,13 +75,25 @@ query{viewer{accounts(filter:{accountTag:"<ACCOUNT_TAG>"}){rumPageloadEventsAdap
 
 | 주소 | 어디서 그리나 | 무엇 |
 |---|---|---|
-| `/p/{id}/` | `functions/p/[[path]].js` → `lib/posting-page.mjs` (매 요청 공개 API) | 공고 한 건. `JobPosting` JSON-LD. 내려간 공고는 410 과 noindex, 마감일이 지난 공고는 noindex |
+| `/p/{id}/` | `functions/p/[[path]].js` → `lib/posting-page.mjs` (엣지 캐시 5분, 아래) | 공고 한 건. `JobPosting` JSON-LD. 내려간 공고는 410 과 noindex, 마감일이 지난 공고는 noindex |
 | `/p/{id}` | 같은 함수 | 앱의 「건네기」 링크. 건네받은 공고라고 말하고, canonical 은 `/p/{id}/` |
-| `/c/{companyId}/` | `functions/c/[[path]].js` → `lib/company-page.mjs` (매 요청 공개 API) | 회사 한 곳의 열린 개발 공고. 열린 공고가 없으면 noindex |
+| `/c/{companyId}/` | `functions/c/[[path]].js` → `lib/company-page.mjs` (엣지 캐시 5분, 아래) | 회사 한 곳의 열린 개발 공고. 열린 공고가 없으면 noindex |
 | `/c/`, `/r/…`, `/t/…` | `scripts/build-seo.mjs` (배포 직전 생성, 커밋하지 않음) | 회사 목록, 직무별, 기술별(공고 20건 이상) 목록 |
 | `/sitemap.xml` | 같은 스크립트 | 사이트맵 인덱스. `sitemap-pages.xml` 만 커밋하고 `sitemap-jobs.xml` `sitemap-companies.xml` `sitemap-hubs.xml` 은 생성 |
 
 배포 워크플로는 push 때와 3시간마다 돌고, 생성 직후 바뀐 주소만 IndexNow 로 알립니다. 로컬에서 보려면 `node scripts/build-seo.mjs` 를 돌리고, 테스트는 `node --test tests/*.mjs` 입니다.
+
+### 공개 API 를 부르는 함수와 엣지 캐시
+
+공개 API 를 읽는 함수는 셋이고, 모두 `lib/edge-routes.mjs` 에서 `lib/edge-cache.mjs` 뒤에 섭니다. 데이터센터마다 Cache API 에 한 벌을 두고, 신선 기간 안에는 API 를 부르지 않으며, 지나면 낡은 벌을 바로 내주고 뒤에서 한 번만 다시 만듭니다(stale-while-revalidate). 다시 만들다 실패하면 낡은 벌을 계속 씁니다. 응답의 `X-Tailf-Edge`(HIT, STALE, MISS)와 `Age` 로 어느 쪽이 답했는지 봅니다.
+
+| 주소 | 신선 | 낡은 벌 유지 | 원천 호출(한 벌 만들 때) |
+|---|---|---|---|
+| `/api/landing` | 10분 | 24시간 | 14회(첫 화면 공고 수 1, 백테스트 13페이지) |
+| `/p/{id}`, `/p/{id}/` | 5분 | 1시간 | 1~2회 |
+| `/c/{companyId}/` | 5분 | 1시간 | 1~3회 |
+
+첫 화면은 `/api/landing` 한 번만 읽습니다. 백테스트 행은 예전에 브라우저가 13페이지를 걸어 만들던 것과 같은 규칙(`lib/landing-data.mjs`)으로 만들고, 기술 선택과 30일 창 계산은 그대로 `app.js` 에 있습니다. `/c/`, `/r/`, `/t/` 는 배포 때 만든 정적 파일이라 API 를 부르지 않습니다.
 
 
 ## 앱 없이 받기 (웹 알림)

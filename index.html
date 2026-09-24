@@ -305,20 +305,6 @@
 
 <script src="/app.js" defer></script>
 
-<script>
-fetch('https://api.asyncsite.com/api/public/jobs?jobFamily=ENGINEERING&page=0&size=1')
-  .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
-  .then(function (d) {
-    var n = d && d.totalElements;
-    if (typeof n !== 'number') throw 0;
-    document.getElementById('n').innerHTML = n.toLocaleString('ko-KR') + '<small>건</small>';
-    document.getElementById('nsub').textContent = '지금 지켜보고 있는 채용 공고예요.';
-  })
-  .catch(function () {
-    document.getElementById('n').textContent = '지금 지켜보고 있는 채용 공고';
-    document.getElementById('nsub').textContent = '지금은 수를 불러오지 못했습니다. 앱에서는 열 때마다 다시 셉니다.';
-  });
-</script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "1903f0756d134ec896ce7b97670134ee", "send": {"to": "https://tailf.asyncsite.com/cdn-cgi/rum"}}'></script>
 </body>
 </html>
