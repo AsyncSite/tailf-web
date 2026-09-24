@@ -452,6 +452,20 @@ test('a crawler backfill of old postings under new ids is not sent as new', asyn
   assert.equal((await runAlerts(env, { now: new Date(+NOW + HOUR), fetchImpl: again.fetchImpl })).sent, 0);
 });
 
+test('a backfill row dated at crawl time is held back by the crawler decision', async () => {
+  // Coupang gives no posting date, so its 2026-09-24 backfill carried today's date.
+  const env = envWith(fakeKv());
+  await activeSub(env);
+  const net = fakeNet({ postings: [
+    job({ id: 101, postedAt: '2026-09-24', alertSkipReason: 'COVERAGE_EXPANSION' }),
+    job({ id: 102, postedAt: '2026-09-24', alertSkipReason: 'NEW_BOARD' }),
+    job({ id: 103, postedAt: '2026-09-24', alertSkipReason: null }),
+  ] });
+  const r = await runAlerts(env, { now: NOW, fetchImpl: net.fetchImpl });
+  assert.equal(r.stale, 2);
+  assert.deepEqual(payloadIds(net.sends()[0]), [103]);
+});
+
 test('one message carries at most ten postings and links the rest to the role hub', async () => {
   const env = envWith(fakeKv());
   await activeSub(env, { kind: 'discord', dest: 'https://discord.com/api/webhooks/123456789012345678/' + 'a'.repeat(68) });
