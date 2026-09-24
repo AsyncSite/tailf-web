@@ -174,17 +174,15 @@ test('/api/landing rows are exactly the rows the browser walk counted before', a
   }
 });
 
-test('/api/landing: a list past 15 pages gives no rows, as the browser hid the section', async () => {
-  await withWorld(async (cache) => {
-    const serve = board(1288, { totalPages: 16 });
+test('/api/landing: a list past 20 pages keeps its newest 2,000 rows instead of hiding the section', async () => {
+  await withWorld(async () => {
+    const serve = board(2500);
     globalThis.fetch = countingFetch(serve);
     const res = await landingRoute(ctx('https://tailf.asyncsite.com/api/landing'));
     const body = await res.json();
-    assert.equal(body.rows, null);
-    assert.equal(await browserWalkBefore(async (u) => serve(u)), null);
-    assert.equal(res.headers.get('X-Tailf-Degraded'), '1');
-    // A half answer is kept only a minute.
-    assert.equal(cache.store.get('https://tailf.asyncsite.com/api/landing').headers.get('Cache-Control'), 'public, max-age=60');
+    assert.ok(Array.isArray(body.rows));
+    assert.equal(body.rows.length, 2000);
+    assert.equal(res.headers.get('X-Tailf-Degraded'), '0');
   });
 });
 
