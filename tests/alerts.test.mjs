@@ -431,3 +431,37 @@ test('SigV4 headers are well formed and stable for one instant', async () => {
   assert.equal(a['X-Amz-Date'], '20260924T000000Z');
   assert.match(a.Authorization, /^AWS4-HMAC-SHA256 Credential=AKIDEXAMPLE\/20260924\/ap-northeast-2\/ses\/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=[0-9a-f]{64}$/);
 });
+
+// ---------- backfill and long lists ----------
+
+test('a crawler backfill of old postings under new ids is not sent as new', async () => {
+  const env = envWith(fakeKv());
+  await activeSub(env);
+  const net = fakeNet({ postings: [
+    job({ id: 101, postedAt: '2026-09-02' }),
+    job({ id: 102, postedAt: '2026-09-20' }), // 09-20 < 09-21, outside 72h
+    job({ id: 103, postedAt: '2026-09-21' }),
+    job({ id: 104, postedAt: null, history: { kind: 'REPOST', firstSeenAt: '2026-09-23T10:00:00Z' } }),
+  ] });
+  const r = await runAlerts(env, { now: NOW, fetchImpl: net.fetchImpl });
+  assert.equal(r.sent, 1);
+  assert.equal(r.stale, 2);
+  assert.deepEqual(payloadIds(net.sends()[0]).sort(), [103, 104]);
+  // The stale ones are behind the cursor now and never come back.
+  const again = fakeNet({ postings: [job({ id: 101, postedAt: '2026-09-02' }), job({ id: 102, postedAt: '2026-09-20' })] });
+  assert.equal((await runAlerts(env, { now: new Date(+NOW + HOUR), fetchImpl: again.fetchImpl })).sent, 0);
+});
+
+test('one message carries at most ten postings and links the rest to the role hub', async () => {
+  const env = envWith(fakeKv());
+  await activeSub(env, { kind: 'discord', dest: 'https://discord.com/api/webhooks/123456789012345678/' + 'a'.repeat(68) });
+  const many = Array.from({ length: 13 }, (_, i) => job({ id: 101 + i }));
+  const net = fakeNet({ postings: many, webhookStatus: () => 204 });
+  const r = await runAlerts(env, { now: NOW, fetchImpl: net.fetchImpl });
+  assert.equal(r.items, 10);
+  const body = JSON.parse(net.sends()[0].init.body);
+  assert.equal(payloadIds(net.sends()[0]).length, 10);
+  assert.match(body.content, /\[그 밖에 3건\]\(<https:\/\/tailf\.asyncsite\.com\/r\/backend\/>\)/);
+  const mail = digestEmail({ matches: many.map((j) => ({ job: j, overlap: [] })), conditions: normalizeConditions({ roles: ['backend', 'qa'], bands: ['junior'] }).conditions, manage: 'm', unsubscribePage: 'u' });
+  assert.ok(mail.html.includes('그 밖에 3건') && mail.html.includes('https://tailf.asyncsite.com/r/"'));
+});
