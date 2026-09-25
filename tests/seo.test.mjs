@@ -299,6 +299,9 @@ test('a company page reached from a channel keeps its canonical and routes every
   assert.doesNotMatch(html, /\/go\/appstore\/seo\//);
   // the strip sits above the list so a phone sees it without scrolling past every row
   assert.ok(html.indexOf('channel-strip') < html.indexOf('<ul class="jobs">'));
+  // and says, next to the button, what the alert is and that this company is read
+  assert.match(html, /<p class="strip-note">카카오뱅크 채용 페이지도 저희가 매일 보고 있어요\. 직무와 경력을 한 번 넣어두면 맞는 새 공고가 올라온 날 알려 드려요\./);
+  assert.ok(html.indexOf('strip-note') < html.indexOf('<ul class="jobs">'));
 });
 
 test('a posting page reached from a channel routes its doors through the channel', async () => {
@@ -346,6 +349,7 @@ test('canonical company and posting pages carry the top alert band on seo doors'
   assert.match(company, /<link rel="canonical" href="https:\/\/tailf.asyncsite.com\/c\/7\/">/);
   const posting = await (await renderPosting('/p/3283/', () => Response.json(JOB))).text();
   assert.match(posting, /channel-strip">\s*<a class="btn" href="\/go\/appstore\/seo\/"/);
+  assert.match(posting, /<p class="strip-note">직무와 경력을 한 번 넣어두면/);
   assert.match(posting, /<a class="web-alerts" href="\/alerts\/from\/posting\/\?role=backend">/);
   assert.ok(posting.indexOf('channel-strip">') < posting.indexOf('<article class="posting">'));
   // the app's hand-off link keeps its own layout

@@ -12,6 +12,21 @@ https://tailf.asyncsite.com 의 정적 랜딩입니다. 빌드 단계가 없고,
 
 설치 버튼은 상태와 무관하게 항상 `/go/appstore/` 나 `/go/play/` 로 갑니다. 첫 기수 경로에만 TestFlight 공개 테스트 진입이 보이고 `/go/testflight/cohort/`를 거쳐 Apple의 고정 공개 링크로 갑니다. 그래서 **설치 의도 클릭률 = (`/go/appstore/` + `/go/play/` + `/go/testflight/`) 페이지뷰 ÷ 랜딩 페이지뷰** 입니다. 스토어 둘과 TestFlight 클릭은 보고에서 따로 보여 심사 안내 클릭을 베타 설치 의도로 바꾸지 않습니다. 계기는 Cloudflare Web Analytics 이고 `asyncsite.com` 존에 자동 설치돼 있습니다. 이 저장소에는 계측 스크립트가 없고, 넣지도 않습니다.
 
+### App Store 문은 스스로 셉니다
+
+`/go/appstore/` 정적 페이지는 0초 meta refresh 로 넘어가서 Web Analytics 비콘이 보고하지
+못했습니다(2026-09-24 03시부터 36시간 동안 스레드 채널 지면 67회, App Store 문 0회). 그래서
+`/go/appstore/{채널}/` 과 `/get/{채널}/` 은 Pages Function(`lib/store-door.mjs`)이 받습니다.
+
+- 아이폰과 아이패드는 한 번 세고 App Store 로 302 합니다.
+- 안드로이드와 PC 는 한 번 세고, 무슨 알림인지 한 화면에 말한 뒤 같은 채널의
+  `/alerts/from/{채널}/` 로 잇습니다. App Store 링크는 그 아래 한 줄로 둡니다.
+- 셈은 `ALERTS` KV 의 `door:{KST 날짜}:{appstore|get}:{채널|direct}:{ios|android|desktop}` 키
+  하나에 숫자만 올립니다. IP, 식별자, 쿼리는 남기지 않고 링크 미리보기 봇과 HEAD 는 세지 않습니다.
+  cron-service `tailf_content_routes.py` 가 이 키를 읽어 원장에 `door_taps` 로 붙입니다.
+- `/get/{채널}/` 은 콘텐츠에 찍히는 링크입니다. 보이는 주소에 스토어 이름이 없어서 안드로이드
+  독자도 자기 문으로 읽습니다. `/go/appstore/{채널}/` 은 지면 버튼이 씁니다.
+
 배포 채널은 개인 식별값 대신 아래 고정 경로를 씁니다. `_redirects`가 같은 첫 화면을 200
 rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설치 버튼도 같은 채널의
 `/go/` 경로로 이어 줍니다. 임의 문자열은 채널로 인정하지 않습니다.
@@ -22,8 +37,8 @@ rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설
 | 그릿 라운지 | `https://tailf.asyncsite.com/from/lounge/` |
 | 기수 채널 | `https://tailf.asyncsite.com/from/cohort/` |
 | 외부 커뮤니티 | `https://tailf.asyncsite.com/from/community/` |
-| 스레드 답글 링크 | `https://tailf.asyncsite.com/go/appstore/threads/` |
-| 유튜브 설명 링크 | `https://tailf.asyncsite.com/go/appstore/youtube/` |
+| 스레드 답글 링크 | `https://tailf.asyncsite.com/get/threads/` |
+| 유튜브 설명 링크 | `https://tailf.asyncsite.com/get/youtube/` |
 | 검색 지면(공고·회사·직무·기술) | `https://tailf.asyncsite.com/go/appstore/seo/` |
 | GeekNews Show GN | `https://tailf.asyncsite.com/from/geeknews/` |
 | OKKY 피드백 게시판 | `https://tailf.asyncsite.com/from/okky/` |
