@@ -31,6 +31,7 @@
 /alerts/from/disquiet/ /alerts/ 200
 /alerts/from/velog/ /alerts/ 200
 /alerts/from/discord/ /alerts/ 200
+/alerts/from/app/ /alerts/ 200
 /signal/alerts-subscribed/landing/ /signal/alerts-subscribed/ 200
 /signal/alerts-subscribed/posting/ /signal/alerts-subscribed/ 200
 /signal/alerts-subscribed/company/ /signal/alerts-subscribed/ 200
@@ -47,6 +48,7 @@
 /signal/alerts-subscribed/disquiet/ /signal/alerts-subscribed/ 200
 /signal/alerts-subscribed/velog/ /signal/alerts-subscribed/ 200
 /signal/alerts-subscribed/discord/ /signal/alerts-subscribed/ 200
+/signal/alerts-subscribed/app/ /signal/alerts-subscribed/ 200
 /signal/alerts-confirmed/landing/ /signal/alerts-confirmed/ 200
 /signal/alerts-confirmed/posting/ /signal/alerts-confirmed/ 200
 /signal/alerts-confirmed/company/ /signal/alerts-confirmed/ 200
@@ -63,3 +65,4 @@
 /signal/alerts-confirmed/disquiet/ /signal/alerts-confirmed/ 200
 /signal/alerts-confirmed/velog/ /signal/alerts-confirmed/ 200
 /signal/alerts-confirmed/discord/ /signal/alerts-confirmed/ 200
+/signal/alerts-confirmed/app/ /signal/alerts-confirmed/ 200

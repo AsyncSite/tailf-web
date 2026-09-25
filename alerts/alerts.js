@@ -17,6 +17,12 @@ const src = (() => {
 })();
 
 const state = { roles: new Set(), bands: new Set(), places: new Set(), status: null };
+// From the app's push-off card: the person already has the app, so the first
+// line says what this page replaces and the store buttons step aside.
+if (src === 'app' && !managing) {
+  $('eyebrow').textContent = '휴대폰 알림 대신 받기';
+  document.querySelectorAll('.topcta').forEach((a) => { a.hidden = true; });
+}
 const listParam = (name, table) => (params.get(name) || '').split(',').filter((k) => table.some((t) => t.key === k));
 listParam('role', ROLE_FOCUS).forEach((k) => state.roles.add(k));
 listParam('band', CAREER_BANDS).forEach((k) => state.bands.add(k));
