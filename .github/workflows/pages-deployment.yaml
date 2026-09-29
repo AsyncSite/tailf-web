@@ -65,12 +65,12 @@ jobs:
           node -e '
             const fs = require("fs");
             const changed = JSON.parse(fs.readFileSync(process.env.CHANGED, "utf8"));
-            const base = ["https://tailf.asyncsite.com/", "https://tailf.asyncsite.com/alerts/", "https://tailf.asyncsite.com/privacy/", "https://tailf.asyncsite.com/support/"];
+            const base = ["https://tailf.teamgrit.co/", "https://tailf.teamgrit.co/alerts/", "https://tailf.teamgrit.co/privacy/", "https://tailf.teamgrit.co/support/"];
             const urls = process.env.GITHUB_EVENT_NAME === "push" ? [...new Set([...base, ...changed])] : changed;
             fs.writeFileSync("/tmp/indexnow-body.json", JSON.stringify({
-              host: "tailf.asyncsite.com",
+              host: "tailf.teamgrit.co",
               key: "e588df4aec01250f0622d3984d84a58c",
-              keyLocation: "https://tailf.asyncsite.com/e588df4aec01250f0622d3984d84a58c.txt",
+              keyLocation: "https://tailf.teamgrit.co/e588df4aec01250f0622d3984d84a58c.txt",
               urlList: urls.slice(0, 10000),
             }));
             console.log("indexnow urls", urls.length);

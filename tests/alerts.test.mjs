@@ -124,15 +124,15 @@ test('only real Slack and Discord webhook endpoints are accepted', () => {
 
 test('Slack and Discord messages cannot ping, and carry the manage link', () => {
   const matches = [{ job: job({ id: 7, company: '<!channel>', title: '@everyone Backend Engineer' }), overlap: ['Java'] }];
-  const s = slackMessage({ matches, conditions: BACKEND_JUNIOR, manage: 'https://tailf.asyncsite.com/alerts/?id=x&t=y' });
+  const s = slackMessage({ matches, conditions: BACKEND_JUNIOR, manage: 'https://tailf.teamgrit.co/alerts/?id=x&t=y' });
   const st = JSON.stringify(s);
   assert.ok(!st.includes('<!channel>'));
-  assert.ok(st.includes('https://tailf.asyncsite.com/p/7/'));
+  assert.ok(st.includes('https://tailf.teamgrit.co/p/7/'));
   assert.ok(st.includes('조건 바꾸기'));
-  const d = discordMessage({ matches, conditions: BACKEND_JUNIOR, manage: 'https://tailf.asyncsite.com/alerts/?id=x&t=y' });
+  const d = discordMessage({ matches, conditions: BACKEND_JUNIOR, manage: 'https://tailf.teamgrit.co/alerts/?id=x&t=y' });
   assert.deepEqual(d.allowed_mentions, { parse: [] });
   assert.ok(d.content.length <= 2000);
-  assert.ok(d.content.includes('<https://tailf.asyncsite.com/p/7/>'));
+  assert.ok(d.content.includes('<https://tailf.teamgrit.co/p/7/>'));
 });
 
 test('a digest email lists company, title, experience and says how to stop', () => {
@@ -313,7 +313,7 @@ test('stopped subscriptions are removed after 30 days', async () => {
 // ---------- API: subscribe, confirm, unsubscribe ----------
 
 function req(path, { method = 'POST', body, type = 'application/json' } = {}) {
-  return new Request('https://tailf.asyncsite.com' + path, {
+  return new Request('https://tailf.teamgrit.co' + path, {
     method,
     headers: body !== undefined ? { 'Content-Type': type } : {},
     body: body === undefined ? undefined : typeof body === 'string' ? body : JSON.stringify(body),
@@ -389,7 +389,7 @@ test('webhook: a start message proves the URL; a dead one is not stored; a new o
   const live = fakeNet({ postings: [job({ id: 120 })] });
   const first = await call(env, live, '/api/alerts/subscribe', { body: { kind: 'slack', destination: SLACK, roles: ['backend'], bands: ['junior'], src: 'company' } });
   assert.equal(first.body.state, 'active');
-  assert.match(first.body.manage, /^https:\/\/tailf\.asyncsite\.com\/alerts\/\?id=[0-9a-f]{32}&t=/);
+  assert.match(first.body.manage, /^https:\/\/tailf\.teamgrit\.co\/alerts\/\?id=[0-9a-f]{32}&t=/);
   assert.ok(String(live.sends()[0].init.body).includes('연결했어요'));
   const second = await call(env, live, '/api/alerts/subscribe', { body: { kind: 'slack', destination: SLACK, roles: ['qa'], bands: ['senior'] } });
   assert.equal(second.body.state, 'active');
@@ -475,7 +475,7 @@ test('one message carries at most ten postings and links the rest to the role hu
   assert.equal(r.items, 10);
   const body = JSON.parse(net.sends()[0].init.body);
   assert.equal(payloadIds(net.sends()[0]).length, 10);
-  assert.match(body.content, /\[그 밖에 3건\]\(<https:\/\/tailf\.asyncsite\.com\/r\/backend\/>\)/);
+  assert.match(body.content, /\[그 밖에 3건\]\(<https:\/\/tailf\.teamgrit\.co\/r\/backend\/>\)/);
   const mail = digestEmail({ matches: many.map((j) => ({ job: j, overlap: [] })), conditions: normalizeConditions({ roles: ['backend', 'qa'], bands: ['junior'] }).conditions, manage: 'm', unsubscribePage: 'u' });
-  assert.ok(mail.html.includes('그 밖에 3건') && mail.html.includes('https://tailf.asyncsite.com/r/"'));
+  assert.ok(mail.html.includes('그 밖에 3건') && mail.html.includes('https://tailf.teamgrit.co/r/"'));
 });

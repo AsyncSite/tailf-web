@@ -47,7 +47,7 @@ test('JobPosting carries every field Google requires and the ones we can state',
   assert.equal(ld.jobLocation.address.addressLocality, '성남시');
   assert.match(ld.jobLocation.address.streetAddress, /분당내곡로 131/);
   assert.equal(ld.experienceRequirements.monthsOfExperience, 36);
-  assert.equal(ld.url, 'https://tailf.asyncsite.com/p/3283/');
+  assert.equal(ld.url, 'https://tailf.teamgrit.co/p/3283/');
   // Description is the full text: all three sections, escaped.
   assert.match(ld.description, /코어뱅킹/);
   assert.match(ld.description, /Java 경력 3년 이상/);
@@ -121,7 +121,7 @@ async function renderPosting(path, upstream) {
   try {
     const id = path.split('/')[2];
     return await postingPage({
-      request: new Request('https://tailf.asyncsite.com' + path),
+      request: new Request('https://tailf.teamgrit.co' + path),
       params: { path: path.endsWith('/') ? [id, ''] : [id] },
     });
   } finally {
@@ -136,7 +136,7 @@ test('search page of an open posting is indexable with JobPosting and the seo CT
   const html = await res.text();
   assert.match(html, /<title>카카오뱅크 계정계 백엔드 개발자 채용 \| tailf<\/title>/);
   assert.match(html, /<meta name="robots" content="index, follow/);
-  assert.match(html, /<link rel="canonical" href="https:\/\/tailf.asyncsite.com\/p\/3283\/">/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/tailf.teamgrit.co\/p\/3283\/">/);
   assert.match(html, /"@type":"JobPosting"/);
   assert.match(html, /href="\/go\/appstore\/seo\/"/);
   assert.match(html, /href="\/c\/7\/"/);
@@ -176,12 +176,12 @@ test('the shared link of a closed posting keeps 200 for link previews, noindex',
   assert.match(res.headers.get('X-Robots-Tag'), /noindex/);
   const html = await res.text();
   assert.match(html, /건넨 공고/);
-  assert.match(html, /canonical" href="https:\/\/tailf.asyncsite.com\/p\/3283\/"/);
+  assert.match(html, /canonical" href="https:\/\/tailf.teamgrit.co\/p\/3283\/"/);
 });
 
 test('extra path segments are not a posting', async () => {
   const res = await postingPage({
-    request: new Request('https://tailf.asyncsite.com/p/3283/x/'),
+    request: new Request('https://tailf.teamgrit.co/p/3283/x/'),
     params: { path: ['3283', 'x', ''] },
   });
   assert.equal(res.status, 404);
@@ -198,7 +198,7 @@ async function renderCompany(path, rows) {
   try {
     const segs = path.split('/').filter(Boolean).slice(1);
     return await companyPage({
-      request: new Request('https://tailf.asyncsite.com' + path),
+      request: new Request('https://tailf.teamgrit.co' + path),
       params: { path: segs },
       next: async () => new Response('static', { status: 200 }),
     });
@@ -230,7 +230,7 @@ test('/c/ falls through to the static index and /c/7 gets its slash', async () =
   assert.equal(await idx.text(), 'static');
   const noSlash = await renderCompany('/c/7', [JOB]);
   assert.equal(noSlash.status, 301);
-  assert.equal(noSlash.headers.get('Location'), 'https://tailf.asyncsite.com/c/7/');
+  assert.equal(noSlash.headers.get('Location'), 'https://tailf.teamgrit.co/c/7/');
 });
 
 // ---------- build ----------
@@ -244,11 +244,11 @@ test('sitemaps list open postings only, with lastmod', () => {
   ];
   const { files, counts } = buildSite({ jobs, companies: [{ id: 7, name: '카카오뱅크' }] }, NOW);
   const locs = locsOf(files['sitemap-jobs.xml']);
-  assert.deepEqual(locs.sort(), ['https://tailf.asyncsite.com/p/3283/', 'https://tailf.asyncsite.com/p/4/'].sort());
+  assert.deepEqual(locs.sort(), ['https://tailf.teamgrit.co/p/3283/', 'https://tailf.teamgrit.co/p/4/'].sort());
   assert.match(files['sitemap-jobs.xml'], /<lastmod>2026-09-23<\/lastmod>/);
-  assert.deepEqual(locsOf(files['sitemap-companies.xml']), ['https://tailf.asyncsite.com/c/7/']);
-  assert.ok(locsOf(files['sitemap-hubs.xml']).includes('https://tailf.asyncsite.com/r/backend/'));
-  assert.ok(locsOf(files['sitemap.xml']).includes('https://tailf.asyncsite.com/sitemap-jobs.xml'));
+  assert.deepEqual(locsOf(files['sitemap-companies.xml']), ['https://tailf.teamgrit.co/c/7/']);
+  assert.ok(locsOf(files['sitemap-hubs.xml']).includes('https://tailf.teamgrit.co/r/backend/'));
+  assert.ok(locsOf(files['sitemap.xml']).includes('https://tailf.teamgrit.co/sitemap-jobs.xml'));
   assert.equal(counts.jobs, 2);
   assert.ok(files['r/backend/index.html'].includes('href="/p/3283/"'));
   assert.ok(!files['r/backend/index.html'].includes('href="/p/2/"'));
@@ -260,7 +260,7 @@ test('a posting links only to tech hubs the build wrote', async () => {
   globalThis.fetch = async (url) => (String(url).endsWith('/companies/with-count') ? Response.json([]) : Response.json(JOB));
   try {
     const res = await postingPage({
-      request: new Request('https://tailf.asyncsite.com/p/3283/'),
+      request: new Request('https://tailf.teamgrit.co/p/3283/'),
       params: { path: ['3283', ''] },
       env: { ASSETS: { fetch: async () => Response.json(['java']) } },
     });
@@ -290,7 +290,7 @@ test('a company page reached from a channel keeps its canonical and routes every
   const res = await renderCompany('/c/7/from/threads/', [JOB]);
   assert.equal(res.status, 200);
   const html = await res.text();
-  assert.match(html, /<link rel="canonical" href="https:\/\/tailf.asyncsite.com\/c\/7\/">/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/tailf.teamgrit.co\/c\/7\/">/);
   assert.match(html, /class="cta-row channel-strip"/);
   assert.match(html, /href="\/go\/appstore\/threads\/"/);
   assert.match(html, /href="\/go\/play\/threads\/"/);
@@ -309,12 +309,12 @@ test('a posting page reached from a channel routes its doors through the channel
   globalThis.fetch = async (url) => (String(url).endsWith('/companies/with-count') ? Response.json([{ id: 7, name: '카카오뱅크', jobCount: 1 }]) : Response.json(JOB));
   try {
     const res = await postingPage({
-      request: new Request('https://tailf.asyncsite.com/p/3283/from/youtube/'),
+      request: new Request('https://tailf.teamgrit.co/p/3283/from/youtube/'),
       params: { path: ['3283', 'from', 'youtube', ''] },
     });
     assert.equal(res.status, 200);
     const html = await res.text();
-    assert.match(html, /<link rel="canonical" href="https:\/\/tailf.asyncsite.com\/p\/3283\/">/);
+    assert.match(html, /<link rel="canonical" href="https:\/\/tailf.teamgrit.co\/p\/3283\/">/);
     assert.match(html, /"@type":"JobPosting"/);
     assert.match(html, /href="\/go\/appstore\/youtube\/"/);
     assert.match(html, /href="\/alerts\/from\/youtube\/\?role=backend"/);
@@ -329,14 +329,14 @@ test('an unknown channel word is not a page, and a missing slash keeps the chann
   const bad = await renderCompany('/c/7/from/somewhere/', [JOB]);
   assert.equal(bad.status, 404);
   const noSlash = await companyPage({
-    request: new Request('https://tailf.asyncsite.com/c/7/from/threads'),
+    request: new Request('https://tailf.teamgrit.co/c/7/from/threads'),
     params: { path: ['7', 'from', 'threads'] },
     next: async () => new Response('static'),
   });
   assert.equal(noSlash.status, 301);
-  assert.equal(noSlash.headers.get('Location'), 'https://tailf.asyncsite.com/c/7/from/threads/');
+  assert.equal(noSlash.headers.get('Location'), 'https://tailf.teamgrit.co/c/7/from/threads/');
   const badPosting = await postingPage({
-    request: new Request('https://tailf.asyncsite.com/p/3283/from/somewhere/'),
+    request: new Request('https://tailf.teamgrit.co/p/3283/from/somewhere/'),
     params: { path: ['3283', 'from', 'somewhere', ''] },
   });
   assert.equal(badPosting.status, 404);
@@ -346,7 +346,7 @@ test('canonical company and posting pages carry the top alert band on seo doors'
   const company = await (await renderCompany('/c/7/', [JOB])).text();
   assert.match(company, /<p class="cta-row channel-strip">\s*<a class="btn" href="\/go\/appstore\/seo\/"[^>]*>새 공고 알림 받기<\/a>\s*<a class="web-alerts" href="\/alerts\/from\/company\/">앱 없이 이메일·슬랙으로 받기<\/a>/);
   assert.ok(company.indexOf('channel-strip">') < company.indexOf('<ul class="jobs">'));
-  assert.match(company, /<link rel="canonical" href="https:\/\/tailf.asyncsite.com\/c\/7\/">/);
+  assert.match(company, /<link rel="canonical" href="https:\/\/tailf.teamgrit.co\/c\/7\/">/);
   const posting = await (await renderPosting('/p/3283/', () => Response.json(JOB))).text();
   assert.match(posting, /channel-strip">\s*<a class="btn" href="\/go\/appstore\/seo\/"/);
   assert.match(posting, /<p class="strip-note">직무와 경력을 한 번 넣어두면/);

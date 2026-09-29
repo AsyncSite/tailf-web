@@ -132,7 +132,7 @@ test('/api/landing: first view builds (14 origin calls), the next views make non
     const f = countingFetch(board(1288));
     globalThis.fetch = f;
 
-    const a = await landingRoute(ctx('https://tailf.asyncsite.com/api/landing'));
+    const a = await landingRoute(ctx('https://tailf.teamgrit.co/api/landing'));
     assert.equal(a.status, 200);
     assert.equal(a.headers.get(EDGE_HEADER), 'MISS');
     assert.equal(a.headers.get('Cache-Control'), LANDING_CACHE_CONTROL);
@@ -147,11 +147,11 @@ test('/api/landing: first view builds (14 origin calls), the next views make non
     assert.equal(body.rows.length, 1288);
 
     // The stored copy lives in the Cache API with its own lifetime; readers never see it.
-    const stored = cache.store.get('https://tailf.asyncsite.com/api/landing');
+    const stored = cache.store.get('https://tailf.teamgrit.co/api/landing');
     assert.equal(stored.headers.get('Cache-Control'), 'public, max-age=87000');
 
     for (let i = 0; i < 50; i++) {
-      const b = await landingRoute(ctx('https://tailf.asyncsite.com/api/landing?from=geeknews'));
+      const b = await landingRoute(ctx('https://tailf.teamgrit.co/api/landing?from=geeknews'));
       assert.equal(b.headers.get(EDGE_HEADER), 'HIT');
       assert.equal(b.headers.get('Cache-Control'), LANDING_CACHE_CONTROL);
       assert.equal(b.headers.get('X-Tailf-Stored-At'), null);
@@ -166,7 +166,7 @@ test('/api/landing rows are exactly the rows the browser walk counted before', a
     await withWorld(async () => {
       const serve = board(n);
       globalThis.fetch = countingFetch(serve);
-      const res = await landingRoute(ctx('https://tailf.asyncsite.com/api/landing'));
+      const res = await landingRoute(ctx('https://tailf.teamgrit.co/api/landing'));
       const body = await res.json();
       const before = await browserWalkBefore(async (u) => serve(u));
       assert.deepEqual(body.rows, before);
@@ -178,7 +178,7 @@ test('/api/landing: a list past 20 pages keeps its newest 2,000 rows instead of 
   await withWorld(async () => {
     const serve = board(2500);
     globalThis.fetch = countingFetch(serve);
-    const res = await landingRoute(ctx('https://tailf.asyncsite.com/api/landing'));
+    const res = await landingRoute(ctx('https://tailf.teamgrit.co/api/landing'));
     const body = await res.json();
     assert.ok(Array.isArray(body.rows));
     assert.equal(body.rows.length, 2000);
@@ -199,26 +199,26 @@ test('/api/landing: stale copy is served at once and refreshed once; a failed re
   );
   let fail = false;
   await withWorld(async () => {
-    const first = await (await route(ctx('https://tailf.asyncsite.com/api/landing'))).json();
+    const first = await (await route(ctx('https://tailf.teamgrit.co/api/landing'))).json();
     assert.equal(first.n, 1_000_000);
 
     clock += 601_000;   // past fresh
-    const c1 = ctx('https://tailf.asyncsite.com/api/landing');
+    const c1 = ctx('https://tailf.teamgrit.co/api/landing');
     const r1 = await route(c1);
     assert.equal(r1.headers.get(EDGE_HEADER), 'STALE');
     assert.equal((await r1.json()).n, 1_000_000);
     assert.equal(c1.waits.length, 1);
     await Promise.all(c1.waits);
-    const r2 = await route(ctx('https://tailf.asyncsite.com/api/landing'));
+    const r2 = await route(ctx('https://tailf.teamgrit.co/api/landing'));
     assert.equal(r2.headers.get(EDGE_HEADER), 'HIT');
     assert.equal((await r2.json()).n, 1_601_000);
 
     clock += 601_000;
     fail = true;          // the origin half answers now
-    const c3 = ctx('https://tailf.asyncsite.com/api/landing');
+    const c3 = ctx('https://tailf.teamgrit.co/api/landing');
     await route(c3);
     await Promise.all(c3.waits);
-    const r4 = await route(ctx('https://tailf.asyncsite.com/api/landing'));
+    const r4 = await route(ctx('https://tailf.teamgrit.co/api/landing'));
     assert.equal(r4.headers.get(EDGE_HEADER), 'STALE');
     assert.equal((await r4.json()).n, 1_601_000);
   });
@@ -232,7 +232,7 @@ test('edge cache: concurrent misses in one isolate share one build', async () =>
     return new Response('ok', { headers: { 'Cache-Control': 'public, max-age=60' } });
   }, { fresh: 60 });
   await withWorld(async () => {
-    const all = await Promise.all(Array.from({ length: 30 }, () => route(ctx('https://tailf.asyncsite.com/x'))));
+    const all = await Promise.all(Array.from({ length: 30 }, () => route(ctx('https://tailf.teamgrit.co/x'))));
     assert.equal(builds, 1);
     assert.ok(all.every((r) => r.status === 200));
   });
@@ -251,20 +251,20 @@ test('/p/{id}/ is kept at the edge with the page Cache-Control; a 502 is not kep
     const f = countingFetch((u) => (u.endsWith('/companies/with-count') ? Response.json([]) : up ? Response.json(JOB) : new Response('x', { status: 503 })));
     globalThis.fetch = f;
 
-    const a = await postingRoute(ctx('https://tailf.asyncsite.com/p/3283/', { params: { path: ['3283'] } }));
+    const a = await postingRoute(ctx('https://tailf.teamgrit.co/p/3283/', { params: { path: ['3283'] } }));
     assert.equal(a.status, 200);
     assert.equal(a.headers.get(EDGE_HEADER), 'MISS');
     assert.equal(a.headers.get('Cache-Control'), 'public, max-age=300, s-maxage=600');
     const calls = f.calls.length;
-    const b = await postingRoute(ctx('https://tailf.asyncsite.com/p/3283/?utm=x', { params: { path: ['3283'] } }));
+    const b = await postingRoute(ctx('https://tailf.teamgrit.co/p/3283/?utm=x', { params: { path: ['3283'] } }));
     assert.equal(b.headers.get(EDGE_HEADER), 'HIT');
     assert.equal(f.calls.length, calls);
     assert.equal(await a.text(), await b.text());
 
     up = false;
-    const c = await postingRoute(ctx('https://tailf.asyncsite.com/p/9999/', { params: { path: ['9999'] } }));
+    const c = await postingRoute(ctx('https://tailf.teamgrit.co/p/9999/', { params: { path: ['9999'] } }));
     assert.equal(c.status, 502);
-    assert.equal(cache.store.has('https://tailf.asyncsite.com/p/9999/'), false);
+    assert.equal(cache.store.has('https://tailf.teamgrit.co/p/9999/'), false);
   });
 });
 
@@ -272,24 +272,24 @@ test('/c/ index bypasses the edge cache; /c/{id}/ is kept', async () => {
   await withWorld(async (cache) => {
     globalThis.fetch = countingFetch((u) => (u.includes('companyIds=') ? Response.json({ content: [JOB], last: true }) : Response.json([])));
     let nexts = 0;
-    const idx = await companyRoute(ctx('https://tailf.asyncsite.com/c/', { params: {}, next: async () => { nexts++; return new Response('index'); } }));
+    const idx = await companyRoute(ctx('https://tailf.teamgrit.co/c/', { params: {}, next: async () => { nexts++; return new Response('index'); } }));
     assert.equal(await idx.text(), 'index');
     assert.equal(idx.headers.get(EDGE_HEADER), null);
     assert.equal(nexts, 1);
 
-    const a = await companyRoute(ctx('https://tailf.asyncsite.com/c/12/', { params: { path: ['12'] } }));
+    const a = await companyRoute(ctx('https://tailf.teamgrit.co/c/12/', { params: { path: ['12'] } }));
     assert.equal(a.status, 200);
     assert.equal(a.headers.get(EDGE_HEADER), 'MISS');
-    const b = await companyRoute(ctx('https://tailf.asyncsite.com/c/12/', { params: { path: ['12'] } }));
+    const b = await companyRoute(ctx('https://tailf.teamgrit.co/c/12/', { params: { path: ['12'] } }));
     assert.equal(b.headers.get(EDGE_HEADER), 'HIT');
-    assert.ok(cache.store.has('https://tailf.asyncsite.com/c/12/'));
+    assert.ok(cache.store.has('https://tailf.teamgrit.co/c/12/'));
 
     // the channel twin is its own copy: its doors carry the channel, the plain page's do not
-    const t = await companyRoute(ctx('https://tailf.asyncsite.com/c/12/from/threads/?utm_source=threads', { params: { path: ['12', 'from', 'threads'] } }));
+    const t = await companyRoute(ctx('https://tailf.teamgrit.co/c/12/from/threads/?utm_source=threads', { params: { path: ['12', 'from', 'threads'] } }));
     assert.equal(t.headers.get(EDGE_HEADER), 'MISS');
     assert.match(await t.text(), /\/go\/appstore\/threads\//);
-    assert.ok(cache.store.has('https://tailf.asyncsite.com/c/12/from/threads/'));
-    assert.doesNotMatch(await (await companyRoute(ctx('https://tailf.asyncsite.com/c/12/', { params: { path: ['12'] } }))).text(), /\/go\/appstore\/threads\//);
+    assert.ok(cache.store.has('https://tailf.teamgrit.co/c/12/from/threads/'));
+    assert.doesNotMatch(await (await companyRoute(ctx('https://tailf.teamgrit.co/c/12/', { params: { path: ['12'] } }))).text(), /\/go\/appstore\/threads\//);
   });
 });
 
@@ -298,7 +298,7 @@ test('without a Cache API (local node) the handlers run as before', async () => 
   globalThis.caches = undefined;
   try {
     const route = withEdgeCache(async () => new Response('plain'), { fresh: 60 });
-    const r = await route(ctx('https://tailf.asyncsite.com/x'));
+    const r = await route(ctx('https://tailf.teamgrit.co/x'));
     assert.equal(await r.text(), 'plain');
     assert.equal(r.headers.get(EDGE_HEADER), null);
   } finally {

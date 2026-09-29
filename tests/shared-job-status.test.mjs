@@ -17,7 +17,7 @@ async function render(upstream) {
   globalThis.fetch = async () => upstream;
   try {
     return await onRequest({
-      request: new Request('https://tailf.asyncsite.com/p/42'),
+      request: new Request('https://tailf.teamgrit.co/p/42'),
       params: { path: ['42'] },
     });
   } finally {

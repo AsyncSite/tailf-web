@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tailf.asyncsite.com/sitemap.xml
+Sitemap: https://tailf.teamgrit.co/sitemap.xml

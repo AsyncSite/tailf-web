@@ -30,7 +30,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PAGE_SIZE = 100;
 const MAX_PAGES = 30;
 const TECH_MIN = 20;
-const UA = 'tailf-web-build/1.0 (+https://tailf.asyncsite.com/)';
+const UA = 'tailf-web-build/1.0 (+https://tailf.teamgrit.co/)';
 
 async function getJson(url, tries = 3) {
   let last;

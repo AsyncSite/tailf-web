@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": ["/assets/*", "/style.css", "/app.js", "/robots.txt", "/e588df4aec01250f0622d3984d84a58c.txt", "/google129de877b94db9b6.html"]
+}

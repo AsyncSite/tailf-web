@@ -22,7 +22,7 @@ function fakeKv() {
 async function hit(path, ua, kv, method = 'GET') {
   const waits = [];
   const res = await onRequest({
-    request: new Request('https://tailf.asyncsite.com' + path, { method, headers: ua ? { 'User-Agent': ua } : {} }),
+    request: new Request('https://tailf.teamgrit.co' + path, { method, headers: ua ? { 'User-Agent': ua } : {} }),
     env: { ALERTS: kv },
     next: async () => new Response('static', { status: 200 }),
     waitUntil: (p) => waits.push(p),

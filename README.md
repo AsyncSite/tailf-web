@@ -1,6 +1,6 @@
 # tailf-web
 
-https://tailf.asyncsite.com 의 정적 랜딩입니다. 빌드 단계가 없고, Cloudflare Pages 가 `main` 을 그대로 냅니다.
+https://tailf.teamgrit.co 의 정적 랜딩입니다. 빌드 단계가 없고, Cloudflare Pages 가 `main` 을 그대로 냅니다.
 
 ## 스토어 링크 끼우는 법
 
@@ -33,18 +33,18 @@ rewrite로 내주므로 주소와 `requestPath`는 유지되고, `app.js`는 설
 
 | 채널 | 배포 주소 |
 |---|---|
-| 뉴스레터 | `https://tailf.asyncsite.com/from/newsletter/` |
-| 그릿 라운지 | `https://tailf.asyncsite.com/from/lounge/` |
-| 기수 채널 | `https://tailf.asyncsite.com/from/cohort/` |
-| 외부 커뮤니티 | `https://tailf.asyncsite.com/from/community/` |
-| 스레드 답글 링크 | `https://tailf.asyncsite.com/get/threads/` |
-| 유튜브 설명 링크 | `https://tailf.asyncsite.com/get/youtube/` |
-| 검색 지면(공고·회사·직무·기술) | `https://tailf.asyncsite.com/go/appstore/seo/` |
-| GeekNews Show GN | `https://tailf.asyncsite.com/from/geeknews/` |
-| OKKY 피드백 게시판 | `https://tailf.asyncsite.com/from/okky/` |
-| 디스콰이엇 프로덕트·메이커로그 | `https://tailf.asyncsite.com/from/disquiet/` |
-| velog 제작기 글 | `https://tailf.asyncsite.com/from/velog/` |
-| 개발자 디스코드 서버(홍보 채널이 있는 곳) | `https://tailf.asyncsite.com/from/discord/` |
+| 뉴스레터 | `https://tailf.teamgrit.co/from/newsletter/` |
+| 그릿 라운지 | `https://tailf.teamgrit.co/from/lounge/` |
+| 기수 채널 | `https://tailf.teamgrit.co/from/cohort/` |
+| 외부 커뮤니티 | `https://tailf.teamgrit.co/from/community/` |
+| 스레드 답글 링크 | `https://tailf.teamgrit.co/get/threads/` |
+| 유튜브 설명 링크 | `https://tailf.teamgrit.co/get/youtube/` |
+| 검색 지면(공고·회사·직무·기술) | `https://tailf.teamgrit.co/go/appstore/seo/` |
+| GeekNews Show GN | `https://tailf.teamgrit.co/from/geeknews/` |
+| OKKY 피드백 게시판 | `https://tailf.teamgrit.co/from/okky/` |
+| 디스콰이엇 프로덕트·메이커로그 | `https://tailf.teamgrit.co/from/disquiet/` |
+| velog 제작기 글 | `https://tailf.teamgrit.co/from/velog/` |
+| 개발자 디스코드 서버(홍보 채널이 있는 곳) | `https://tailf.teamgrit.co/from/discord/` |
 
 글이 회사 한 곳이나 공고 한 건을 다루면 채널 링크는 첫 화면 대신 그 지면으로 갑니다.
 `/c/{companyId}/from/{채널}/`, `/p/{id}/from/{채널}/` 는 정본과 같은 지면이고 canonical 도
@@ -68,7 +68,7 @@ Referer로 전달되지 않게 하는 경계입니다. Cloudflare는 CDN과 보�
 신호 하위 경로가 첫 화면 fallback으로 응답하더라도 검색 결과에 남지 않게 합니다.
 
 ```graphql
-query{viewer{accounts(filter:{accountTag:"<ACCOUNT_TAG>"}){rumPageloadEventsAdaptiveGroups(limit:100,filter:{datetime_geq:"<ISO8601>",requestHost:"tailf.asyncsite.com"},dimensions:[requestPath]){count dimensions{requestPath}}}}}
+query{viewer{accounts(filter:{accountTag:"<ACCOUNT_TAG>"}){rumPageloadEventsAdaptiveGroups(limit:100,filter:{datetime_geq:"<ISO8601>",requestHost:"tailf.teamgrit.co"},dimensions:[requestPath]){count dimensions{requestPath}}}}}
 ```
 
 ## 이 저장소가 쓰는 말
