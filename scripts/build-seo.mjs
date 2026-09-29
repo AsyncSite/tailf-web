@@ -294,7 +294,9 @@ async function main() {
     const now_ = new Set(urls);
     const added = urls.filter((u) => !before.has(u));
     const dropped = [...before].filter((u) => !now_.has(u));
-    const changed = [...added, ...dropped].slice(0, 10000);
+    // IndexNow rejects the whole batch if any URL is off the key's host. Right after the
+    // 2026-09-30 host move the live sitemaps still listed the old host, so keep only ours.
+    const changed = [...added, ...dropped].filter((u) => u.startsWith(SITE + '/')).slice(0, 10000);
     await writeFile(process.env.INDEXNOW_OUT, JSON.stringify(changed));
     console.log('indexnow', JSON.stringify({ added: added.length, dropped: dropped.length }));
   }
