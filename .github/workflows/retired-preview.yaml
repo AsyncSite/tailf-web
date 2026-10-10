@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   redirect-preview:
+    if: ${{ !github.event.deleted }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
