@@ -1,0 +1,43 @@
+name: Redirect retired Pages preview
+
+on:
+  push:
+    branches:
+      - f9e8d5dd
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: tailf-retired-preview-f9e8d5dd
+  cancel-in-progress: false
+
+jobs:
+  redirect-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the retired preview redirect
+        shell: bash
+        run: |
+          test "$GITHUB_REF_NAME" = 'f9e8d5dd'
+          mkdir -p "$RUNNER_TEMP/retired-preview"
+          printf '%s\n' '/* https://tailf.teamgrit.co/:splat 301' > "$RUNNER_TEMP/retired-preview/_redirects"
+          printf '%s\n' '/*' '  Cache-Control: no-store' '  X-Robots-Tag: noindex' > "$RUNNER_TEMP/retired-preview/_headers"
+          printf '%s\n' '<!doctype html><html lang="ko"><meta charset="utf-8"><title>tailf</title><meta http-equiv="refresh" content="0;url=https://tailf.teamgrit.co/"><a href="https://tailf.teamgrit.co/">tailf로 이동</a></html>' > "$RUNNER_TEMP/retired-preview/index.html"
+
+      - name: Deploy only the retired preview alias
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ${{ runner.temp }}/retired-preview --project-name=tailf-web --branch=f9e8d5dd
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
