@@ -2,11 +2,12 @@
 
 https://tailf.teamgrit.co 의 정적 랜딩입니다. 빌드 단계가 없고, Cloudflare Pages 가 `main` 을 그대로 냅니다.
 
-## 스토어 링크 끼우는 법
+## 공개 스토어
 
-1. **Google Play**: `app.js` 맨 위 `PLAY_URL` 에 `https://play.google.com/store/apps/details?id=...` 를 적습니다. 그 한 줄로 세 곳의 버튼과 상단 알약과 `/go/play/` 가 같이 바뀝니다. 빈 문자열이면 링크가 없는 상태로 섭니다.
-2. **App Store**: 손댈 곳이 없습니다. `app.js` 가 열 때마다 iTunes lookup 으로 Apple 에게 물어보고, Apple 이 준 주소로만 이어집니다.
-3. **스크립트를 끈 브라우저**: `go/appstore/index.html` 과 `go/play/index.html` 머리에 주석으로 접어 둔 `meta refresh` 한 줄의 주석을 풀고 같은 주소를 적습니다. 이 줄이 없어도 스크립트가 켜진 브라우저는 바로 갑니다.
+- iOS: `https://apps.apple.com/kr/app/tailf/id6808048845`
+- Android: `https://play.google.com/store/apps/details?id=com.asyncsite.tailf&hl=ko&gl=KR`
+
+`lib/store-door.mjs`의 스토어 주소로 Pages Function이 서버에서 302 합니다. `app.js`의 공개 주소와 `go/play/`의 정적 fallback도 같은 목적지를 유지합니다. JavaScript를 끈 브라우저도 설치할 수 있습니다.
 
 ## 설치 클릭률 읽는 법
 
@@ -16,12 +17,12 @@ https://tailf.teamgrit.co 의 정적 랜딩입니다. 빌드 단계가 없고, C
 
 `/go/appstore/` 정적 페이지는 0초 meta refresh 로 넘어가서 Web Analytics 비콘이 보고하지
 못했습니다(2026-09-24 03시부터 36시간 동안 스레드 채널 지면 67회, App Store 문 0회). 그래서
-`/go/appstore/{채널}/` 과 `/get/{채널}/` 은 Pages Function(`lib/store-door.mjs`)이 받습니다.
+`/go/appstore/{채널}/`, `/go/play/{채널}/`, `/get/{채널}/` 은 Pages Function(`lib/store-door.mjs`)이 받습니다.
 
 - 아이폰과 아이패드는 한 번 세고 App Store 로 302 합니다.
-- 안드로이드와 PC 는 한 번 세고, 무슨 알림인지 한 화면에 말한 뒤 같은 채널의
-  `/alerts/from/{채널}/` 로 잇습니다. App Store 링크는 그 아래 한 줄로 둡니다.
-- 셈은 `ALERTS` KV 의 `door:{KST 날짜}:{appstore|get}:{채널|direct}:{ios|android|desktop}` 키
+- 안드로이드는 한 번 세고 한국 Google Play로 302 합니다. `/go/play/`의 명시적 Play 버튼도 모든 기기에서 Play로 갑니다.
+- PC의 일반 설치 문은 기존 웹 알림 화면을 내며 같은 채널의 `/alerts/from/{채널}/`와 두 스토어 설치 링크를 제공합니다.
+- 셈은 `ALERTS` KV 의 `door:{KST 날짜}:{appstore|play|get}:{채널|direct}:{ios|android|desktop}` 키
   하나에 숫자만 올립니다. IP, 식별자, 쿼리는 남기지 않고 링크 미리보기 봇과 HEAD 는 세지 않습니다.
   cron-service `tailf_content_routes.py` 가 이 키를 읽어 원장에 `door_taps` 로 붙입니다.
 - `/get/{채널}/` 은 콘텐츠에 찍히는 링크입니다. 보이는 주소에 스토어 이름이 없어서 안드로이드
@@ -75,20 +76,9 @@ query{viewer{accounts(filter:{accountTag:"<ACCOUNT_TAG>"}){rumPageloadEventsAdap
 
 카피 규칙과 금지 목록의 정본은 앱 저장소의 `docs/copy/web-landing.md` 와 `docs/copy-lexicon.md` 입니다. 해요체로 통일하고, 습니다체는 정책 고지와 오류 고지에만 씁니다. 긴 줄표를 구분자로 쓰지 않습니다. 「준비 중」 「출시되면」 「심사가 끝나면」은 폐기된 표현이라 쓰지 않습니다.
 
-두 스토어 버튼을 세우면서 새로 쓴 문장은 이것뿐입니다.
+아이폰과 안드로이드 모두 지금 무료로 받을 수 있습니다. 랜딩의 세 CTA와 FAQ, 문의, 모든 채널의 Play 받기 화면은 현재 공개 상태를 말합니다. 고객에게 공개 상태를 확인한 내부 경위는 설명하지 않습니다.
 
-| 새 문장 | 어디에 |
-|---|---|
-| Google Play 에도 올라가요 | Play 버튼 (링크 없음 상태) |
-| Google Play 에서 받기 | Play 버튼 (링크 있음 상태) |
-| Google Play 는 아이폰 다음이에요. 올라가면 여기서 바로 받을 수 있어요. | 세 CTA 아래 보조문 |
-| 받는 곳은 App Store 와 Google Play 예요 | 마지막 절 제목 |
-| 아이폰이 먼저예요. Google Play 에도 올라가고, 그때 안드로이드에서도 받을 수 있어요. | FAQ 「아이폰만 되나요?」 |
-| 아직 App Store 심사 중이에요 / 올라가면 이 주소가 바로 스토어로 이어져요. | `/go/appstore/` |
-| Google Play 에도 올라가요 / 아이폰이 먼저예요. 올라가면 이 주소가 바로 스토어로 이어져요. | `/go/play/` |
-| 아이폰이 먼저고 안드로이드가 뒤따릅니다. (이하 한 문단) | `/support/` 「지금은 어디서 받나요」 (그 페이지의 결대로 습니다체) |
-
-상단 알약 둘은 문장 대신 스토어 이름만 답니다(`data-keep-label`). 390px 화면에서 마크 옆에 두 문장이 서지 않아서이고, 상태는 알약의 색과 `/go/` 화면이 말합니다.
+상단 알약 둘은 문장 대신 스토어 이름만 답니다(`data-keep-label`). 390px 화면에서 마크 옆에 두 문장이 서지 않아서이고, 두 스토어 모두 활성 색을 쓰고 `/go/`가 해당 스토어로 잇습니다.
 
 ## 검색 지면
 

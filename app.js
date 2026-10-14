@@ -31,10 +31,8 @@
 (function () {
   'use strict';
 
-  /* Google Play. One line, one place: put the address Google serves here and
-     every Play button on the site, the top pill included, leads to it. An empty
-     string is the honest state while Play has nothing of ours. */
-  var PLAY_URL = '';
+  // Public Korean Google Play listing. The server install door uses the same URL.
+  var PLAY_URL = 'https://play.google.com/store/apps/details?id=com.asyncsite.tailf&hl=ko&gl=KR';
   var TESTFLIGHT_URL = 'https://testflight.apple.com/join/5J2W3M5p';
 
   // Confirmed public Korean storefront for approved build 27.
@@ -43,7 +41,7 @@
 
   var LABELS = {
     appstore: { live: 'App Store 에서 받기', pending: 'App Store 심사 중이에요' },
-    play: { live: 'Google Play 에서 받기', pending: 'Google Play 에도 올라가요' }
+    play: { live: 'Google Play 에서 받기', pending: 'Google Play 열기' }
   };
 
   /* Distribution links use a short fixed path instead of a cookie or a free-
