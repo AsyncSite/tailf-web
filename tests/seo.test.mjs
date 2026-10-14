@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import test, { before, after, mock } from 'node:test';
 
 import {
   buildJobPostingLd, ldScript, parseLocation, deadlineDay, pastDeadline, techSlug, rolesOf, listable,
@@ -9,6 +9,9 @@ import { onRequest as companyPage } from '../lib/company-page.mjs';
 import { buildSite, locsOf } from '../scripts/build-seo.mjs';
 
 const NOW = new Date('2026-09-24T03:00:00Z'); // 12:00 KST
+// Page handlers use new Date(); keep their clock on the same day as the fixtures.
+before(() => mock.timers.enable({ apis: ['Date'], now: NOW }));
+after(() => mock.timers.reset());
 
 const JOB = {
   id: 3283,
