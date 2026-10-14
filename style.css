@@ -75,6 +75,9 @@ h1 {
 .btn.install-pending:hover { background: #E4EFDA; }
 .btn:focus-visible, .topcta:focus-visible { outline: 2px solid var(--acc-ink); outline-offset: 2px; }
 .topcta.install-pending { color: var(--ink-2); }
+.btn.install-secondary { background: var(--chip); color: var(--ink-2); }
+.btn.install-secondary:hover { background: #E4EFDA; }
+.topcta.install-primary { background: var(--acc); color: var(--ink); }
 .cta-note a { color: var(--acc-ink); }
 
 .phone {

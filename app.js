@@ -135,6 +135,24 @@
     each('[data-testflight-cta]', function (el) { el.hidden = false; });
   }
 
+  // Put this phone's install action first, keeping the 30-day preview in place.
+  // The other store stays available as a quieter alternative.
+  function prioritizePhoneStore() {
+    var ua = navigator.userAgent || '';
+    var store = /Android/i.test(ua) ? 'play'
+      : /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1)
+        ? 'appstore' : null;
+    if (!store) return;
+    each('.cta-row, .topctas', function (row) {
+      var primary = row.querySelector('[data-install="' + store + '"]');
+      var secondary = row.querySelector('[data-install="' + (store === 'play' ? 'appstore' : 'play') + '"]');
+      if (!primary || !secondary || primary.parentNode !== secondary.parentNode) return;
+      primary.classList.add('install-primary');
+      secondary.classList.add('install-secondary');
+      primary.parentNode.insertBefore(primary, secondary);
+    });
+  }
+
   /** The Play address, or null while there is nothing to link. */
   function playUrl() { return PLAY_STORE.test(PLAY_URL) ? PLAY_URL : null; }
 
@@ -175,6 +193,7 @@
     drawTestFlightEntry();
     drawStore('play', playUrl());
     askApple(function (url) { drawStore('appstore', url); });
+    prioritizePhoneStore();
   }
 
   var DATA = '/api/landing';
