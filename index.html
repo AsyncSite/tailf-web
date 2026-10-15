@@ -81,15 +81,24 @@
     <h2>무슨 기술 쓰세요?</h2>
     <p class="block-sub">두 개 이상 겹칠 때만 와요. 하나만 겹치면 너무 많거든요.</p>
 
-    <div class="try-panel" aria-live="polite">
-      <p class="try-big" id="try-big">두 개만 고르면 돼요.</p>
-      <p class="try-second" id="try-second" hidden></p>
-      <p class="try-basis" id="try-basis" hidden></p>
-      <p class="try-basis" id="try-scope" hidden></p>
+    <div class="try-controls">
+      <div class="try-panel" aria-live="polite">
+        <p class="try-big" id="try-big">두 개만 고르면 돼요.</p>
+        <p class="try-second" id="try-second" hidden></p>
+        <p class="try-basis" id="try-basis" hidden></p>
+        <p class="try-basis" id="try-scope" hidden></p>
+      </div>
+
+      <p class="try-multi">여러 개 골라도 돼요</p>
+      <div class="try-groups" id="try-groups"></div>
     </div>
 
-    <p class="try-multi">여러 개 골라도 돼요</p>
-    <div class="try-groups" id="try-groups"></div>
+    <section class="try-preview" id="try-preview" aria-labelledby="try-preview-title" hidden>
+      <h3 id="try-preview-title">지금 열려 있는 공고예요</h3>
+      <p class="try-preview-selected" id="try-preview-selected"></p>
+      <ul class="try-preview-jobs" id="try-preview-jobs"></ul>
+      <p class="try-preview-next">새로 올라오는 공고도 내 조건에 맞으면 알려드려요.</p>
+    </section>
 
     <p class="cta-row">
       <a class="btn" href="/go/appstore/" data-install="appstore">App Store 에서 받기</a>

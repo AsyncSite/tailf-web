@@ -54,6 +54,8 @@ function board(n, { totalPages } = {}) {
   for (let i = 0; i < n; i++) {
     jobs.push({
       id: i + 1,
+      title: 'Developer ' + (i + 1), company: 'Company ' + (i % 5),
+      sourceUrl: 'https://careers.example.org/jobs/' + (i + 1),
       skills: i % 3 === 0 ? [' Java ', 'Kafka', 'Git'] : i % 3 === 1 ? ['Python', 'AWS', 'aws'] : [],
       postedAt: i % 5 === 0 ? null : '2026-09-' + String(1 + (i % 24)).padStart(2, '0') + (i % 2 ? 'T10:00:00' : ''),
       isActive: i % 4 !== 0,
@@ -143,8 +145,13 @@ test('/api/landing: first view builds (14 origin calls), the next views make non
     assert.ok(f.calls.includes(TOTAL_URL));
     assert.ok(f.calls.includes(rowsUrl(12)));
     const body = await a.json();
+    assert.equal(body.v, 2);
     assert.equal(body.total, 777);
     assert.equal(body.rows.length, 1288);
+    assert.equal(body.rows[0].i, 1);
+    assert.equal(body.rows[0].t, 'Developer 1');
+    assert.equal(body.rows[0].c, 'Company 0');
+    assert.equal(body.rows[0].u, 'https://careers.example.org/jobs/1');
 
     // The stored copy lives in the Cache API with its own lifetime; readers never see it.
     const stored = cache.store.get('https://tailf.teamgrit.co/api/landing');
@@ -169,7 +176,7 @@ test('/api/landing rows are exactly the rows the browser walk counted before', a
       const res = await landingRoute(ctx('https://tailf.teamgrit.co/api/landing'));
       const body = await res.json();
       const before = await browserWalkBefore(async (u) => serve(u));
-      assert.deepEqual(body.rows, before);
+      assert.deepEqual(body.rows.map(({ s, d, a }) => ({ s, d, a })), before);
     });
   }
 });
@@ -182,6 +189,7 @@ test('/api/landing: a list past 20 pages keeps its newest 2,000 rows instead of 
     const body = await res.json();
     assert.ok(Array.isArray(body.rows));
     assert.equal(body.rows.length, 2000);
+    assert.equal(body.rows[1999].i, 2000);
     assert.equal(res.headers.get('X-Tailf-Degraded'), '0');
   });
 });

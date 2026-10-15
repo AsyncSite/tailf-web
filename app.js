@@ -245,9 +245,12 @@
   var secondEl = document.getElementById('try-second');
   var basisEl = document.getElementById('try-basis');
   var scopeEl = document.getElementById('try-scope');
+  var previewEl = document.getElementById('try-preview');
+  var previewSelectedEl = document.getElementById('try-preview-selected');
+  var previewJobsEl = document.getElementById('try-preview-jobs');
 
   var chosen = [];   // chip labels, in the order they were pressed
-  var rows = null;   // [{ s: [normalized skills], d: 'YYYY-MM-DD', a: isActive }]
+  var rows = null;   // [{ s, d, a, i: id, t: title, c: company, u: sourceUrl }]
   var dead = false;
 
   /* ---------- the rules, ported ---------- */
@@ -319,9 +322,59 @@
     else { el.textContent = ''; el.hidden = true; }
   }
 
+  function drawPreview(matches, m) {
+    if (!previewEl) return;
+    previewJobsEl.replaceChildren();
+    previewEl.hidden = true;
+    // A previous edge-cache format has counting fields but no public identity.
+    // Keep its counts usable without inventing a posting or a destination.
+    var seen = {};
+    for (var i = 0; i < matches.length && previewJobsEl.children.length < 3; i++) {
+      var row = matches[i];
+      if (!Number.isSafeInteger(row.i) || row.i < 1 || row.i > 999999999 ||
+          typeof row.t !== 'string' || !row.t.trim() ||
+          typeof row.c !== 'string' || !row.c.trim() || seen[row.i]) continue;
+      seen[row.i] = true;
+      var item = document.createElement('li');
+      item.className = 'try-preview-job';
+      var company = document.createElement('p');
+      company.className = 'try-preview-company';
+      company.textContent = row.c;
+      item.appendChild(company);
+      var title = document.createElement('h4');
+      title.textContent = row.t;
+      item.appendChild(title);
+      var skills = document.createElement('p');
+      skills.className = 'try-preview-skills';
+      skills.setAttribute('aria-label', '겹친 기술');
+      for (var j = 0; j < chosen.length; j++) {
+        var key = norm(chosen[j]);
+        if (m[key] && row.s.indexOf(key) >= 0) {
+          var tag = document.createElement('span');
+          tag.textContent = chosen[j];
+          skills.appendChild(tag);
+        }
+      }
+      item.appendChild(skills);
+      var link = document.createElement('a');
+      link.className = 'try-preview-link';
+      var source = acquisitionSource();
+      link.href = '/p/' + row.i + '/' + (source ? 'from/' + source + '/' : '');
+      link.textContent = '공고 보기';
+      link.setAttribute('aria-label', row.c + ' ' + row.t + ' 공고 보기');
+      item.appendChild(link);
+      previewJobsEl.appendChild(item);
+    }
+    if (previewJobsEl.children.length) {
+      previewSelectedEl.textContent = '고른 기술 · ' + chosen.join(' · ');
+      previewEl.hidden = false;
+    }
+  }
+
   function render() {
     if (dead) return;
     var n = chosen.length;
+    drawPreview([], {});
 
     if (n === 0) {
       line(bigEl, '두 개만 고르면 돼요.');
@@ -343,7 +396,7 @@
     var since = cutoff();
     for (var i = 0; i < rows.length; i++) {
       var r = rows[i];
-      if (r.a) active.push(r);
+      if (r.a === true) active.push(r);
       // backtest.dart counts a row with no date as inside the window rather
       // than guessing a day for it.
       if (r.d === '' || r.d >= since) window30.push(r);
@@ -357,7 +410,11 @@
       return;
     }
 
-    line(bigEl, '내 기술과 겹치는 채용 공고 ' + countAtLeast(active, m, 2) + '개');
+    // The number and the cards share the exact active rows and overlap rule.
+    // Keep overlap's duplicate-skill behavior identical to the existing matcher.
+    var matches = active.filter(function (row) { return overlap(row, m) >= 2; });
+    line(bigEl, '내 기술과 겹치는 채용 공고 ' + matches.length + '개');
+    drawPreview(matches, m);
 
     var observed = window30.length;
     if (observed < 5) {  // backtest.dart `thinSample`
@@ -433,9 +490,7 @@
 
   /* ---------- the list ---------- */
 
-  /** The rows arrive already reduced to what the rules read
-   *  ({ s: normalized skills, d: posted day, a: active }), or null where the
-   *  walk would not be honest (a failed page, more than 15 pages). */
+  /** The same bounded rows drive counts and cards; a failed page gives null. */
   function load() {
     landingData().then(function (body) {
       var list = body && body.rows;
