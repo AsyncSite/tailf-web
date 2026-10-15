@@ -80,9 +80,13 @@
     'backtest-completed': 1
   };
   var emittedSignals = {};
+  // Picks restored from this tab's sessionStorage are not a new action. Until
+  // the reader taps a chip, restored renders stay silent so the KPI counts
+  // only what a person did.
+  var userActed = false;
 
   function emitSignal(name) {
-    if (!SIGNALS[name] || emittedSignals[name]) return;
+    if (!SIGNALS[name] || emittedSignals[name] || !userActed) return;
     var key = 'tailf.signal.' + name + '.v1';
     try {
       if (window.sessionStorage.getItem(key)) {
@@ -426,12 +430,19 @@
     }
     var matched = countAtLeast(window30, m, 2);
     var ringDays = countRingDays(window30, m, 2);
+    // Open postings can be older than the 30-day window; saying "0번" next to
+    // a card for one of them would read as if no such posting existed.
+    var olderOpen = ringDays === 0 && matches.length > 0;
     line(secondEl, ringDays > 0
       ? '지난 30일이었다면 ' + ringDays + '번 왔을 거예요'
-      : '0번이에요. 두 개 이상 겹친 공고가 없었거든요.');
+      : olderOpen
+        ? '지난 30일엔 새로 올라온 게 없었어요'
+        : '0번이에요. 두 개 이상 겹친 공고가 없었거든요.');
     line(basisEl, ringDays > 0
       ? '겹친 공고 ' + matched + '건이 ' + ringDays + '일에 걸쳐 올라왔어요. 하루 한 번 묶어서 와요.'
-      : '지난 30일에 올라온 ' + observed + '건을 봤어요.');
+      : olderOpen
+        ? '지금 열린 ' + matches.length + '개는 그 전에 올라온 공고예요. 새로 올라오면 바로 알려드려요.'
+        : '지난 30일에 올라온 ' + observed + '건을 봤어요.');
     line(scopeEl, '지난 30일 기준이고 이미 내려간 것도 셌어요. 기술만으로 센 값이에요. 경력이랑 지역은 앱에서 좁혀요.');
     emitSignal('backtest-completed');
   }
@@ -469,6 +480,47 @@
     groupsEl.appendChild(frag);
   }
 
+  var chipEls = {};
+
+  /* ---------- picks kept for this tab ---------- */
+
+  var PICKS_KEY = 'tailf.picks.v1';
+
+  function savePicks() {
+    try {
+      window.sessionStorage.setItem(PICKS_KEY, JSON.stringify(chosen));
+    } catch (e) { /* storage off: picks just do not survive Back */ }
+  }
+
+  function paintChip(label, on) {
+    var b = chipEls[label];
+    if (!b) return;
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.classList.toggle('on', on);
+  }
+
+  /** Re-applies this tab's saved picks (page load, bfcache return). Only
+      real chip labels are accepted; it never emits a signal by itself. */
+  function restorePicks() {
+    if (dead) return;
+    var saved;
+    try {
+      saved = JSON.parse(window.sessionStorage.getItem(PICKS_KEY) || 'null');
+    } catch (e) { return; }
+    if (!Array.isArray(saved)) return;
+    var next = [];
+    for (var i = 0; i < saved.length; i++) {
+      if (typeof saved[i] === 'string' && chipEls.hasOwnProperty(saved[i]) &&
+          next.indexOf(saved[i]) < 0) next.push(saved[i]);
+    }
+    if (next.join('\n') === chosen.join('\n')) return;
+    for (var label in chipEls) {
+      if (chipEls.hasOwnProperty(label)) paintChip(label, next.indexOf(label) >= 0);
+    }
+    chosen = next;
+    render();
+  }
+
   function chip(label) {
     var b = document.createElement('button');
     b.type = 'button';
@@ -476,13 +528,16 @@
     b.textContent = label;
     b.setAttribute('aria-pressed', 'false');
     b.setAttribute('data-stack', label);
+    chipEls[label] = b;
     b.addEventListener('click', function () {
+      userActed = true;
       emitSignal('backtest-started');
       var at = chosen.indexOf(label);
       if (at >= 0) chosen.splice(at, 1); else chosen.push(label);
       var on = at < 0;
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
       b.classList.toggle('on', on);
+      savePicks();
       render();
     });
     return b;
@@ -503,9 +558,16 @@
   /* ---------- start ---------- */
 
   buildChips();
+  restorePicks();
   render();
   section.hidden = false;   // no chips without the script that answers them
 
   // The request is already in flight for the hero count; this only waits on it.
   load();
+
+  // Back/forward returns: bfcache keeps the page as it was, a plain reload
+  // does not, so re-read this tab's picks either way.
+  if (typeof window.addEventListener === 'function') {
+    window.addEventListener('pageshow', restorePicks);
+  }
 })();
